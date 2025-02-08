@@ -60,7 +60,7 @@ steps:
               return MaterialApp(
                 title: 'Flutter Demo',
                 theme: ThemeData(
-                  primarySwatch: Colors.blue,
+                  colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
                 ),
                 home: const ResizeablePage(),
               );
@@ -170,19 +170,22 @@ steps:
           // This is a basic Flutter widget test.
           //
           // To perform an interaction with a widget in your test, use the WidgetTester
-          // utility that Flutter provides. For example, you can send tap and scroll
+          // utility in the flutter_test package. For example, you can send tap and scroll
           // gestures. You can also use WidgetTester to find child widgets in the widget
           // tree, read text, and verify that the values of widget properties are correct.
-
+          
           import 'package:adaptive_app/main.dart';
           import 'package:flutter_test/flutter_test.dart';
-
+          
           void main() {
             testWidgets('Counter increments smoke test', (tester) async {
               // Build our app and trigger a frame.
               await tester.pumpWidget(const MyApp());
             });
           }
+      - name: Upgrade deps
+        path: adaptive_app
+        flutter: pub upgrade --major-versions
       - name: Build iOS simulator bundle
         platforms: [ macos ]
         path: adaptive_app
@@ -218,7 +221,7 @@ steps:
         patch-u: |
           --- b/adaptive_app/step_04/android/app/src/main/AndroidManifest.xml
           +++ a/adaptive_app/step_04/android/app/src/main/AndroidManifest.xml
-          @@ -31,4 +31,19 @@
+          @@ -31,6 +31,21 @@
                        android:name="flutterEmbedding"
                        android:value="2" />
                </application>
@@ -237,13 +240,15 @@ steps:
           +            <data android:mimeType="*/*" />
           +        </intent>
           +    </queries>
-           </manifest>
+               <!-- Required to query activities that can process text, see:
+                    https://developer.android.com/training/package-visibility and
+                    https://developer.android.com/reference/android/content/Intent#ACTION_PROCESS_TEXT.
       - name: Patch ios/Runner/Info.plist
         path: adaptive_app/ios/Runner/Info.plist
         patch-u: |
           --- b/adaptive_app/step_04/ios/Runner/Info.plist
           +++ a/adaptive_app/step_04/ios/Runner/Info.plist
-          @@ -47,5 +47,13 @@
+          @@ -45,5 +45,13 @@
            	<true/>
            	<key>UIApplicationSupportsIndirectInputEvents</key>
            	<true/>
@@ -292,8 +297,8 @@ steps:
                   GoRoute(
                     path: 'playlist/:id',
                     builder: (context, state) {
-                      final title = state.queryParams['title']!;
-                      final id = state.params['id']!;
+                      final title = state.uri.queryParameters['title']!;
+                      final id = state.pathParameters['id']!;
                       return PlaylistDetails(
                         playlistId: id,
                         playlistName: title,
@@ -329,11 +334,9 @@ steps:
                 title: 'FlutterDev Playlists',
                 theme: FlexColorScheme.light(
                   scheme: FlexScheme.red,
-                  useMaterial3: true,
                 ).toTheme,
                 darkTheme: FlexColorScheme.dark(
                   scheme: FlexScheme.red,
-                  useMaterial3: true,
                 ).toTheme,
                 themeMode: ThemeMode.dark, // Or ThemeMode.System if you'd prefer
                 debugShowCheckedModeBanner: false,
@@ -518,7 +521,7 @@ steps:
                     gradient: LinearGradient(
                       colors: [
                         Colors.transparent,
-                        Theme.of(context).colorScheme.background
+                        Theme.of(context).colorScheme.surface,
                       ],
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
@@ -721,11 +724,11 @@ steps:
       - name: Rebuild ios/Podfile.lock
         platforms: [ macos ]
         path: adaptive_app/ios
-        pod: update
+        pod: install
       - name: Rebuild macos/Podfile.lock
         platforms: [ macos ]
         path: adaptive_app/macos
-        pod: update
+        pod: install
       - name: Copy step_04
         copydir:
           from: adaptive_app 
@@ -764,8 +767,8 @@ steps:
                    GoRoute(
           @@ -32,9 +32,12 @@ final _router = GoRouter(
                      builder: (context, state) {
-                       final title = state.queryParams['title']!;
-                       final id = state.params['id']!;
+                       final title = state.uri.queryParameters['title']!;
+                       final id = state.pathParameters['id']!;
           -            return PlaylistDetails(
           -              playlistId: id,
           -              playlistName: title,
@@ -1035,9 +1038,10 @@ steps:
             Widget build(BuildContext context) {
               return Scaffold(
                 appBar: AppBar(
-                  title: selectedPlaylist == null
-                      ? const Text('FlutterDev Playlists')
-                      : Text('FlutterDev Playlist: ${selectedPlaylist!.snippet!.title!}'),
+                  title: switch (selectedPlaylist?.snippet?.title) {
+                    String title => Text('FlutterDev Playlist: $title'),
+                    _ => const Text('FlutterDev Playlists'),
+                  },
                 ),
                 body: SplitView(
                   viewMode: SplitViewMode.Horizontal,
@@ -1047,14 +1051,11 @@ steps:
                         selectedPlaylist = playlist;
                       });
                     }),
-                    if (selectedPlaylist != null)
-                      PlaylistDetails(
-                          playlistId: selectedPlaylist!.id!,
-                          playlistName: selectedPlaylist!.snippet!.title!)
-                    else
-                      const Center(
-                        child: Text('Select a playlist'),
-                      ),
+                    switch ((selectedPlaylist?.id, selectedPlaylist?.snippet?.title)) {
+                      (String id, String title) =>
+                        PlaylistDetails(playlistId: id, playlistName: title),
+                      _ => const Center(child: Text('Select a playlist')),
+                    },
                   ],
                 ),
               );
@@ -1071,12 +1072,15 @@ steps:
       - name: Create yt_cors_proxy
         path: adaptive_app
         dart: create --template server-shelf yt_cors_proxy
-      - name: Remove args
+      - name: Remove shelf_router test
         path: adaptive_app/yt_cors_proxy
-        dart: pub remove args shelf_router test
+        dart: pub remove shelf_router test
       - name: Add http shelf_cors_headers
         path: adaptive_app/yt_cors_proxy
         dart: pub add http shelf_cors_headers
+      - name: Upgrade dart dependencies
+        path: adaptive_app/yt_cors_proxy
+        dart: pub upgrade --major-versions
       - name: Patch yt_cors_proxy/pubspec.yaml
         path: adaptive_app/yt_cors_proxy/pubspec.yaml
         patch-u: |
@@ -1144,7 +1148,6 @@ steps:
               avoid_print: false
               directives_ordering: true
               prefer_single_quotes: true
-              sort_pub_dependencies: true
 
           # For additional information about configuring this file, see
           # https://dart.dev/guides/language/analysis-options
@@ -1256,13 +1259,10 @@ steps:
 
             @override
             Widget build(BuildContext context) {
-              switch (Theme.of(context).platform) {
-                case TargetPlatform.android:
-                case TargetPlatform.iOS:
-                  return Text(data, style: style);
-                default:
-                  return SelectableText(data, style: style);
-              }
+              return switch (Theme.of(context).platform) {
+                TargetPlatform.android || TargetPlatform.iOS => Text(data, style: style),
+                _ => SelectableText(data, style: style)
+              };
             }
           }
       - name: Copy step_06
@@ -1273,15 +1273,35 @@ steps:
     steps:
       - name: Remove generated code
         rmdir: step_07
+      - name: Remove http package
+        path: adaptive_app
+        flutter: pub remove http
+      - name: flutter clean
+        path: adaptive_app
+        flutter: clean
+      - name: flutter pub get
+        path: adaptive_app
+        flutter: pub get
       - name: Add googleapis_auth google_sign_in extension_google_sign_in_as_googleapis_auth
         path: adaptive_app
-        flutter: pub add googleapis_auth google_sign_in extension_google_sign_in_as_googleapis_auth
+        flutter: pub add googleapis_auth google_sign_in extension_google_sign_in_as_googleapis_auth http
+      - name: Patch macos/Podfile
+        path: adaptive_app/macos/Podfile
+        patch-u: |
+          --- b/adaptive_app/step_07/macos/Podfile
+          +++ a/adaptive_app/step_07/macos/Podfile
+          @@ -1,4 +1,4 @@
+          -platform :osx, '10.14'
+          +platform :osx, '10.15'
+           
+           # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
+           ENV['COCOAPODS_DISABLE_STATS'] = 'true'
       - name: Patch .gitignore
         path: adaptive_app/.gitignore
         patch-u: |
           --- b/adaptive_app/step_07/.gitignore
           +++ a/adaptive_app/step_07/.gitignore
-          @@ -42,3 +42,6 @@ app.*.map.json
+          @@ -43,3 +43,6 @@ app.*.map.json
            /android/app/debug
            /android/app/profile
            /android/app/release
@@ -1369,7 +1389,8 @@ steps:
               _googleSignIn.onCurrentUserChanged.listen((account) {
                 if (account != null) {
                   _googleSignIn.authenticatedClient().then((authClient) {
-                    if (authClient != null) {
+                    final context = this.context;
+                    if (authClient != null && context.mounted) {
                       context.read<AuthedUserPlaylists>().authClient = authClient;
                       context.go('/');
                     }
@@ -1416,8 +1437,11 @@ steps:
                   _authUrl = Uri.parse(url);
                 });
               }).then((authClient) {
-                context.read<AuthedUserPlaylists>().authClient = authClient;
-                context.go('/');
+                final context = this.context;
+                if (context.mounted) {
+                  context.read<AuthedUserPlaylists>().authClient = authClient;
+                  context.go('/');
+                }
               });
             }
           
@@ -1450,7 +1474,7 @@ steps:
         patch-u: |
           --- b/adaptive_app/step_07/ios/Runner/Info.plist
           +++ a/adaptive_app/step_07/ios/Runner/Info.plist
-          @@ -55,5 +55,18 @@
+          @@ -53,5 +53,18 @@
            		<string>tel</string>
            		<string>mailto</string>
            	</array>
@@ -1560,7 +1584,7 @@ steps:
           +      title: 'Your Playlists',
                  theme: FlexColorScheme.light(
                    scheme: FlexScheme.red,
-                   useMaterial3: true,
+                 ).toTheme,
       - name: Patch lib/src/adaptive_playlists.dart
         path: adaptive_app/lib/src/adaptive_playlists.dart
         patch-u: |
@@ -1578,14 +1602,14 @@ steps:
           @@ -65,8 +65,8 @@ class _WideDisplayPlaylistsState extends State<WideDisplayPlaylists> {
                return Scaffold(
                  appBar: AppBar(
-                   title: selectedPlaylist == null
-          -            ? const Text('FlutterDev Playlists')
-          -            : Text('FlutterDev Playlist: ${selectedPlaylist!.snippet!.title!}'),
-          +            ? const Text('Your Playlists')
-          +            : Text('Your Playlist: ${selectedPlaylist!.snippet!.title!}'),
+                   title: switch (selectedPlaylist?.snippet?.title) {
+          -          String title => Text('FlutterDev Playlist: $title'),
+          -          _ => const Text('FlutterDev Playlists'),
+          +          String title => Text('Your Playlist: $title'),
+          +          _ => const Text('Your Playlists'),
+                   },
                  ),
                  body: SplitView(
-                   viewMode: SplitViewMode.Horizontal,
       - name: Patch lib/src/app_state.dart
         path: adaptive_app/lib/src/app_state.dart
         patch-u: |
@@ -1763,14 +1787,15 @@ steps:
           +
              <title>adaptive_app</title>
              <link rel="manifest" href="manifest.json">
+           </head>
       - name: Rebuild ios/Podfile.lock
         platforms: [ macos ]
         path: adaptive_app/ios
-        pod: update
+        pod: install
       - name: Rebuild macos/Podfile.lock
         platforms: [ macos ]
         path: adaptive_app/macos
-        pod: update
+        pod: install
       - name: Build iOS simulator bundle
         platforms: [ macos ]
         path: adaptive_app

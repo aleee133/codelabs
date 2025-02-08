@@ -6,10 +6,16 @@ steps:
         rmdir: step_03
       - name: Create project
         flutter: create animated_responsive_layout --empty
+      - name: Strip DEVELOPMENT_TEAM
+        strip-lines-containing: DEVELOPMENT_TEAM =
+        path: animated_responsive_layout/ios/Runner.xcodeproj/project.pbxproj
       - name: Configure analysis_options.yaml
         path: animated_responsive_layout/analysis_options.yaml
         replace-contents: |
           include: ../../analysis_options.yaml
+      - name: Update dependencies
+        path: animated_responsive_layout
+        flutter: pub upgrade --major-versions
       - name: Remove README
         rm: animated_responsive_layout/README.md
       - name: Add .vscode directory
@@ -43,9 +49,6 @@ steps:
               await tester.pumpWidget(const MainApp());
             });
           }
-      - name: Strip DEVELOPMENT_TEAM
-        strip-lines-containing: DEVELOPMENT_TEAM =
-        path: animated_responsive_layout/ios/Runner.xcodeproj/project.pbxproj
       - name: Build iOS simulator bundle
         platforms: [ macos ]
         path: animated_responsive_layout
@@ -287,7 +290,7 @@ steps:
           import '../models/data.dart' as data;
           import '../models/models.dart';
           import 'email_widget.dart';
-          import 'search_bar.dart';
+          import 'search_bar.dart' as search_bar;
           
           class EmailListView extends StatelessWidget {
             const EmailListView({
@@ -308,7 +311,7 @@ steps:
                 child: ListView(
                   children: [
                     const SizedBox(height: 8),
-                    SearchBar(currentUser: currentUser),
+                    search_bar.SearchBar(currentUser: currentUser),
                     const SizedBox(height: 8),
                     ...List.generate(
                       data.emails.length,
@@ -338,17 +341,17 @@ steps:
           // Copyright 2022 The Flutter Authors. All rights reserved.
           // Use of this source code is governed by a BSD-style license that can be
           // found in the LICENSE file.
-          
+
           import 'package:flutter/material.dart';
           import '../models/models.dart';
           import 'star_button.dart';
-          
+
           enum EmailType {
             preview,
             threaded,
             primaryThreaded,
           }
-          
+
           class EmailWidget extends StatefulWidget {
             const EmailWidget({
               super.key,
@@ -359,31 +362,31 @@ steps:
               this.showHeadline = false,
               this.onSelected,
             });
-          
+
             final bool isSelected;
             final bool isPreview;
             final bool showHeadline;
             final bool isThreaded;
             final void Function()? onSelected;
             final Email email;
-          
+
             @override
             State<EmailWidget> createState() => _EmailWidgetState();
           }
-          
+
           class _EmailWidgetState extends State<EmailWidget> {
             late final ColorScheme _colorScheme = Theme.of(context).colorScheme;
             late Color unselectedColor = Color.alphaBlend(
-              _colorScheme.primary.withOpacity(0.08),
+              _colorScheme.primary.withAlpha(20),
               _colorScheme.surface,
             );
-          
-            Color get _surfaceColor {
-              if (!widget.isPreview) return _colorScheme.surface;
-              if (widget.isSelected) return _colorScheme.primaryContainer;
-              return unselectedColor;
-            }
-          
+
+            Color get _surfaceColor => switch (widget) {
+                  EmailWidget(isPreview: false) => _colorScheme.surface,
+                  EmailWidget(isSelected: true) => _colorScheme.primaryContainer,
+                  _ => unselectedColor,
+                };
+
             @override
             Widget build(BuildContext context) {
               return GestureDetector(
@@ -414,7 +417,7 @@ steps:
               );
             }
           }
-          
+
           class EmailContent extends StatefulWidget {
             const EmailContent({
               super.key,
@@ -423,46 +426,44 @@ steps:
               required this.isThreaded,
               required this.isSelected,
             });
-          
+
             final Email email;
             final bool isPreview;
             final bool isThreaded;
             final bool isSelected;
-          
+
             @override
             State<EmailContent> createState() => _EmailContentState();
           }
-          
+
           class _EmailContentState extends State<EmailContent> {
             late final ColorScheme _colorScheme = Theme.of(context).colorScheme;
             late final TextTheme _textTheme = Theme.of(context).textTheme;
-          
+
             Widget get contentSpacer => SizedBox(height: widget.isThreaded ? 20 : 2);
-          
+
             String get lastActiveLabel {
               final DateTime now = DateTime.now();
               if (widget.email.sender.lastActive.isAfter(now)) throw ArgumentError();
               final Duration elapsedTime =
                   widget.email.sender.lastActive.difference(now).abs();
-              if (elapsedTime.inSeconds < 60) return '${elapsedTime.inSeconds}s';
-              if (elapsedTime.inMinutes < 60) return '${elapsedTime.inMinutes}m';
-              if (elapsedTime.inHours < 60) return '${elapsedTime.inHours}h';
-              if (elapsedTime.inDays < 365) return '${elapsedTime.inDays}d';
-              throw UnimplementedError();
+              return switch (elapsedTime) {
+                Duration(inSeconds: < 60) => '${elapsedTime.inSeconds}s',
+                Duration(inMinutes: < 60) => '${elapsedTime.inMinutes}m',
+                Duration(inHours: < 24) => '${elapsedTime.inHours}h',
+                Duration(inDays: < 365) => '${elapsedTime.inDays}d',
+                _ => throw UnimplementedError(),
+              };
             }
-          
-            TextStyle? get contentTextStyle {
-              if (widget.isThreaded) {
-                return _textTheme.bodyLarge;
-              }
-              if (widget.isSelected) {
-                return _textTheme.bodyMedium
-                    ?.copyWith(color: _colorScheme.onPrimaryContainer);
-              }
-              return _textTheme.bodyMedium
-                  ?.copyWith(color: _colorScheme.onSurfaceVariant);
-            }
-          
+
+            TextStyle? get contentTextStyle => switch (widget) {
+                  EmailContent(isThreaded: true) => _textTheme.bodyLarge,
+                  EmailContent(isSelected: true) => _textTheme.bodyMedium
+                      ?.copyWith(color: _colorScheme.onPrimaryContainer),
+                  _ =>
+                    _textTheme.bodyMedium?.copyWith(color: _colorScheme.onSurfaceVariant),
+                };
+
             @override
             Widget build(BuildContext context) {
               return Padding(
@@ -561,32 +562,32 @@ steps:
               );
             }
           }
-          
+
           class EmailHeadline extends StatefulWidget {
             const EmailHeadline({
               super.key,
               required this.email,
               required this.isSelected,
             });
-          
+
             final Email email;
             final bool isSelected;
-          
+
             @override
             State<EmailHeadline> createState() => _EmailHeadlineState();
           }
-          
+
           class _EmailHeadlineState extends State<EmailHeadline> {
             late final TextTheme _textTheme = Theme.of(context).textTheme;
             late final ColorScheme _colorScheme = Theme.of(context).colorScheme;
-          
+
             @override
             Widget build(BuildContext context) {
               return LayoutBuilder(builder: (context, constraints) {
                 return Container(
                   height: 84,
                   color: Color.alphaBlend(
-                    _colorScheme.primary.withOpacity(0.05),
+                    _colorScheme.primary.withAlpha(12),
                     _colorScheme.surface,
                   ),
                   child: Padding(
@@ -649,17 +650,17 @@ steps:
               });
             }
           }
-          
+
           class EmailReplyOptions extends StatefulWidget {
             const EmailReplyOptions({super.key});
-          
+
             @override
             State<EmailReplyOptions> createState() => _EmailReplyOptionsState();
           }
-          
+
           class _EmailReplyOptionsState extends State<EmailReplyOptions> {
             late final ColorScheme _colorScheme = Theme.of(context).colorScheme;
-          
+
             @override
             Widget build(BuildContext context) {
               return LayoutBuilder(
@@ -673,7 +674,7 @@ steps:
                         child: TextButton(
                           style: ButtonStyle(
                             backgroundColor:
-                                MaterialStateProperty.all(_colorScheme.onInverseSurface),
+                                WidgetStateProperty.all(_colorScheme.onInverseSurface),
                           ),
                           onPressed: () {},
                           child: Text(
@@ -687,7 +688,7 @@ steps:
                         child: TextButton(
                           style: ButtonStyle(
                             backgroundColor:
-                                MaterialStateProperty.all(_colorScheme.onInverseSurface),
+                                WidgetStateProperty.all(_colorScheme.onInverseSurface),
                           ),
                           onPressed: () {},
                           child: Text(
@@ -836,7 +837,7 @@ steps:
             @override
             Widget build(BuildContext context) {
               return MaterialApp(
-                theme: ThemeData.light(useMaterial3: true),
+                theme: ThemeData.light(),
                 home: Feed(currentUser: data.user_0),
               );
             }
@@ -857,7 +858,7 @@ steps:
           class _FeedState extends State<Feed> {
             late final _colorScheme = Theme.of(context).colorScheme;
             late final _backgroundColor = Color.alphaBlend(
-                _colorScheme.primary.withOpacity(0.14), _colorScheme.surface);
+                _colorScheme.primary.withAlpha(36), _colorScheme.surface);
           
             @override
             Widget build(BuildContext context) {
@@ -924,7 +925,7 @@ steps:
            import 'widgets/email_list_view.dart';
           @@ -41,12 +42,20 @@ class _FeedState extends State<Feed> {
              late final _backgroundColor = Color.alphaBlend(
-                 _colorScheme.primary.withOpacity(0.14), _colorScheme.surface);
+                 _colorScheme.primary.withAlpha(36), _colorScheme.surface);
            
           +  int selectedIndex = 0;
           +
@@ -1092,7 +1093,7 @@ steps:
            
            void main() {
           @@ -43,44 +44,65 @@ class _FeedState extends State<Feed> {
-                 _colorScheme.primary.withOpacity(0.14), _colorScheme.surface);
+                 _colorScheme.primary.withAlpha(36), _colorScheme.surface);
            
              int selectedIndex = 0;
           +  bool wideScreen = false;
@@ -1640,7 +1641,7 @@ steps:
           +class _FeedState extends State<Feed> with SingleTickerProviderStateMixin {
              late final _colorScheme = Theme.of(context).colorScheme;
              late final _backgroundColor = Color.alphaBlend(
-                 _colorScheme.primary.withOpacity(0.14), _colorScheme.surface);
+                 _colorScheme.primary.withAlpha(36), _colorScheme.surface);
           +  late final _controller = AnimationController(
           +      duration: const Duration(milliseconds: 1000),
           +      reverseDuration: const Duration(milliseconds: 1250),
@@ -1795,12 +1796,12 @@ steps:
           // Copyright 2022 The Flutter Authors. All rights reserved.
           // Use of this source code is governed by a BSD-style license that can be
           // found in the LICENSE file.
-          
+
           import 'dart:ui';
-          
+
           import 'package:flutter/material.dart';
           import '../animations.dart';
-          
+
           class ListDetailTransition extends StatefulWidget {
             const ListDetailTransition({
               super.key,
@@ -1808,15 +1809,15 @@ steps:
               required this.one,
               required this.two,
             });
-          
+
             final Animation<double> animation;
             final Widget one;
             final Widget two;
-          
+
             @override
             State<ListDetailTransition> createState() => _ListDetailTransitionState();
           }
-          
+
           class _ListDetailTransitionState extends State<ListDetailTransition> {
             Animation<double> widthAnimation = const AlwaysStoppedAnimation(0);
             late final Animation<double> sizeAnimation =
@@ -1826,31 +1827,29 @@ steps:
               end: Offset.zero,
             ).animate(OffsetAnimation(parent: sizeAnimation));
             double currentFlexFactor = 0;
-          
+
             @override
             void didChangeDependencies() {
               super.didChangeDependencies();
-          
+
               // When the app's width is < 800, widgets one and two get 1/2 of
               // the available width, As the app gets wider, the allocation
               // gradually changes to 1/3 and 2/3 for widgets one and two. When
               // the window is wider than 1600, the allocation changes to 1/4  3/4.
               final double width = MediaQuery.of(context).size.width;
-              double nextFlexFactor = 1000;
-              if (width >= 800 && width < 1200) {
-                nextFlexFactor = lerpDouble(1000, 2000, (width - 800) / 400)!;
-              } else if (width >= 1200 && width < 1600) {
-                nextFlexFactor = lerpDouble(2000, 3000, (width - 1200) / 400)!;
-              } else if (width > 1600) {
-                nextFlexFactor = 3000;
-              }
-          
+              double nextFlexFactor = switch (width) {
+                >= 800 && < 1200 => lerpDouble(1000, 2000, (width - 800) / 400)!,
+                >= 1200 && < 1600 => lerpDouble(2000, 3000, (width - 1200) / 400)!,
+                >= 1600 => 3000,
+                _ => 1000,
+              };
+
               // Continue along the current animation curve if the
               // destionation flex factor has not changed.
               if (nextFlexFactor == currentFlexFactor) {
                 return;
               }
-          
+
               if (currentFlexFactor == 0) {
                 widthAnimation =
                     Tween<double>(begin: 0, end: nextFlexFactor).animate(sizeAnimation);
@@ -1869,13 +1868,13 @@ steps:
                     ),
                   ],
                 ]);
-          
+
                 widthAnimation = sequence.animate(sizeAnimation);
               }
-          
+
               currentFlexFactor = nextFlexFactor;
             }
-          
+
             @override
             Widget build(BuildContext context) {
               return widthAnimation.value.toInt() == 0

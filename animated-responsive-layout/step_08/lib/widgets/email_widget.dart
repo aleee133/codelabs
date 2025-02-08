@@ -37,15 +37,15 @@ class EmailWidget extends StatefulWidget {
 class _EmailWidgetState extends State<EmailWidget> {
   late final ColorScheme _colorScheme = Theme.of(context).colorScheme;
   late Color unselectedColor = Color.alphaBlend(
-    _colorScheme.primary.withOpacity(0.08),
+    _colorScheme.primary.withAlpha(20),
     _colorScheme.surface,
   );
 
-  Color get _surfaceColor {
-    if (!widget.isPreview) return _colorScheme.surface;
-    if (widget.isSelected) return _colorScheme.primaryContainer;
-    return unselectedColor;
-  }
+  Color get _surfaceColor => switch (widget) {
+        EmailWidget(isPreview: false) => _colorScheme.surface,
+        EmailWidget(isSelected: true) => _colorScheme.primaryContainer,
+        _ => unselectedColor,
+      };
 
   @override
   Widget build(BuildContext context) {
@@ -107,24 +107,22 @@ class _EmailContentState extends State<EmailContent> {
     if (widget.email.sender.lastActive.isAfter(now)) throw ArgumentError();
     final Duration elapsedTime =
         widget.email.sender.lastActive.difference(now).abs();
-    if (elapsedTime.inSeconds < 60) return '${elapsedTime.inSeconds}s';
-    if (elapsedTime.inMinutes < 60) return '${elapsedTime.inMinutes}m';
-    if (elapsedTime.inHours < 60) return '${elapsedTime.inHours}h';
-    if (elapsedTime.inDays < 365) return '${elapsedTime.inDays}d';
-    throw UnimplementedError();
+    return switch (elapsedTime) {
+      Duration(inSeconds: < 60) => '${elapsedTime.inSeconds}s',
+      Duration(inMinutes: < 60) => '${elapsedTime.inMinutes}m',
+      Duration(inHours: < 24) => '${elapsedTime.inHours}h',
+      Duration(inDays: < 365) => '${elapsedTime.inDays}d',
+      _ => throw UnimplementedError(),
+    };
   }
 
-  TextStyle? get contentTextStyle {
-    if (widget.isThreaded) {
-      return _textTheme.bodyLarge;
-    }
-    if (widget.isSelected) {
-      return _textTheme.bodyMedium
-          ?.copyWith(color: _colorScheme.onPrimaryContainer);
-    }
-    return _textTheme.bodyMedium
-        ?.copyWith(color: _colorScheme.onSurfaceVariant);
-  }
+  TextStyle? get contentTextStyle => switch (widget) {
+        EmailContent(isThreaded: true) => _textTheme.bodyLarge,
+        EmailContent(isSelected: true) => _textTheme.bodyMedium
+            ?.copyWith(color: _colorScheme.onPrimaryContainer),
+        _ =>
+          _textTheme.bodyMedium?.copyWith(color: _colorScheme.onSurfaceVariant),
+      };
 
   @override
   Widget build(BuildContext context) {
@@ -249,7 +247,7 @@ class _EmailHeadlineState extends State<EmailHeadline> {
       return Container(
         height: 84,
         color: Color.alphaBlend(
-          _colorScheme.primary.withOpacity(0.05),
+          _colorScheme.primary.withAlpha(12),
           _colorScheme.surface,
         ),
         child: Padding(
@@ -336,7 +334,7 @@ class _EmailReplyOptionsState extends State<EmailReplyOptions> {
               child: TextButton(
                 style: ButtonStyle(
                   backgroundColor:
-                      MaterialStateProperty.all(_colorScheme.onInverseSurface),
+                      WidgetStateProperty.all(_colorScheme.onInverseSurface),
                 ),
                 onPressed: () {},
                 child: Text(
@@ -350,7 +348,7 @@ class _EmailReplyOptionsState extends State<EmailReplyOptions> {
               child: TextButton(
                 style: ButtonStyle(
                   backgroundColor:
-                      MaterialStateProperty.all(_colorScheme.onInverseSurface),
+                      WidgetStateProperty.all(_colorScheme.onInverseSurface),
                 ),
                 onPressed: () {},
                 child: Text(

@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'dart:io';
+import 'dart:io' show Platform;
 
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
@@ -20,8 +20,8 @@ void main() {
   }
   Animate.restartOnHotReload = true;
   runApp(
-    FutureProvider<Shaders?>(
-      create: (context) => loadShaders(),
+    FutureProvider<FragmentPrograms?>(
+      create: (context) => loadFragmentPrograms(),
       initialData: null,
       child: const NextGenApp(),
     ),

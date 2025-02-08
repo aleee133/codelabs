@@ -2,28 +2,39 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../logic/dash_purchases.dart';
+import '../logic/firebase_notifier.dart';
+import '../model/firebase_state.dart';
 import '../model/purchasable_product.dart';
 import '../model/store_state.dart';
 import '../repo/iap_repo.dart';
+import 'login_page.dart';
 
 class PurchasePage extends StatelessWidget {
   const PurchasePage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    var firebaseNotifier = context.watch<FirebaseNotifier>();
+    if (firebaseNotifier.state == FirebaseState.loading) {
+      return _PurchasesLoading();
+    } else if (firebaseNotifier.state == FirebaseState.notAvailable) {
+      return _PurchasesNotAvailable();
+    }
+
+    if (!firebaseNotifier.loggedIn) {
+      return const LoginPage();
+    }
+
     var upgrades = context.watch<DashPurchases>();
 
     Widget storeWidget;
     switch (upgrades.storeState) {
       case StoreState.loading:
         storeWidget = _PurchasesLoading();
-        break;
       case StoreState.available:
         storeWidget = _PurchaseList();
-        break;
       case StoreState.notAvailable:
         storeWidget = _PurchasesNotAvailable();
-        break;
     }
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       storeWidget,
@@ -97,14 +108,11 @@ class _PurchaseWidget extends StatelessWidget {
   }
 
   String _trailing() {
-    switch (product.status) {
-      case ProductStatus.purchasable:
-        return product.price;
-      case ProductStatus.purchased:
-        return 'purchased';
-      case ProductStatus.pending:
-        return 'buying...';
-    }
+    return switch (product.status) {
+      ProductStatus.purchasable => product.price,
+      ProductStatus.purchased => 'purchased',
+      ProductStatus.pending => 'buying...'
+    };
   }
 }
 

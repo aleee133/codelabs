@@ -8,6 +8,8 @@ import 'dart:io';
 import 'package:io/io.dart' as io;
 import 'package:logging/logging.dart';
 import 'package:path/path.dart' as p;
+import 'package:xml/xml.dart';
+import 'package:xml/xpath.dart';
 
 import 'blueprint.dart';
 
@@ -88,6 +90,22 @@ Future<void> _buildBlueprintStep(Directory cwd, BlueprintStep step) async {
                 : p.join(cwd.path, dir),
             step: step);
       }
+    }
+    return;
+  }
+
+  final renamedir = step.renamedir;
+  if (renamedir != null) {
+    if (step.path != null) {
+      _renamedir(
+          from: p.join(cwd.path, step.path, renamedir.from),
+          to: p.join(cwd.path, step.path, renamedir.to),
+          step: step);
+    } else {
+      _renamedir(
+          from: p.join(cwd.path, renamedir.from),
+          to: p.join(cwd.path, renamedir.to),
+          step: step);
     }
     return;
   }
@@ -236,9 +254,91 @@ Future<void> _buildBlueprintStep(Directory cwd, BlueprintStep step) async {
   final stripLinesContaining = step.stripLinesContaining;
   if (stripLinesContaining != null) {
     final target = File(p.join(cwd.path, step.path));
-    var lines = target.readAsLinesSync();
+    final lines = target.readAsLinesSync();
     lines.removeWhere((line) => line.contains(stripLinesContaining));
-    target.writeAsStringSync(lines.join('\n'));
+    final buff = StringBuffer();
+    for (final line in lines) {
+      buff.writeln(line);
+    }
+    target.writeAsStringSync(buff.toString());
+    return;
+  }
+
+  final xcodeProjectPath = step.xcodeProjectPath;
+  if (xcodeProjectPath != null && xcodeProjectPath.isNotEmpty) {
+    final xcodeAddFile = step.xcodeAddFile;
+    final iphoneosDeploymentTarget = step.iphoneosDeploymentTarget;
+    final macosxDeploymentTarget = step.macosxDeploymentTarget;
+    late String script;
+    if (xcodeAddFile != null && xcodeAddFile.isNotEmpty) {
+      script = '''
+require "xcodeproj"
+project = Xcodeproj::Project.open("$xcodeProjectPath")
+group = project.main_group["Runner"]
+project.targets.first.add_file_references([group.new_file("$xcodeAddFile")])
+project.save
+'''
+          .split('\n')
+          .map((str) => "-e '$str'")
+          .join(' ');
+    } else if (iphoneosDeploymentTarget != null &&
+        iphoneosDeploymentTarget.isNotEmpty) {
+      script = '''
+require "xcodeproj"
+project = Xcodeproj::Project.open("$xcodeProjectPath")
+group = project.main_group["Runner"]
+project.targets.each { |t| t.build_configurations.each { |c| c.build_settings["IPHONEOS_DEPLOYMENT_TARGET"] ||= $iphoneosDeploymentTarget } }
+project.save
+'''
+          .split('\n')
+          .map((str) => "-e '$str'")
+          .join(' ');
+    } else if (macosxDeploymentTarget != null &&
+        macosxDeploymentTarget.isNotEmpty) {
+      script = '''
+require "xcodeproj"
+project = Xcodeproj::Project.open("$xcodeProjectPath")
+group = project.main_group["Runner"]
+project.targets.each { |t| t.build_configurations.each { |c| c.build_settings["MACOSX_DEPLOYMENT_TARGET"] ||= $macosxDeploymentTarget } }
+project.save
+'''
+          .split('\n')
+          .map((str) => "-e '$str'")
+          .join(' ');
+    } else {
+      _logger.severe(
+          'xcode-add-file requires xcode-project-path, iphoneos-deployment-target'
+          ' or macosx-deployment-target: ${step.name}');
+      exit(-1);
+    }
+
+    await _runNamedCommand(
+        command: 'ruby',
+        step: step,
+        cwd: cwd,
+        args: script,
+        exitOnStdErr: false);
+    return;
+  }
+  // Modifies a macOS MainMenu.xib file to make the titlebar transparent,
+  // content full window, and hide the title bar.
+  final macOsMainMenuXib = step.macOsMainMenuXib;
+  if (macOsMainMenuXib != null) {
+    final File file;
+    if (step.path?.isNotEmpty ?? false) {
+      file = File(p.join(cwd.path, step.path, macOsMainMenuXib));
+    } else {
+      file = File(p.join(cwd.path, macOsMainMenuXib));
+    }
+    var document = XmlDocument.parse(file.readAsStringSync());
+    document.xpath('//document/objects/window').first
+      ..setAttribute('titlebarAppearsTransparent', 'YES')
+      ..setAttribute('titleVisibility', 'hidden');
+    document
+        .xpath('//document/objects/window/windowStyleMask')
+        .first
+        .setAttribute('fullSizeContentView', 'YES');
+    file.writeAsStringSync(document.toString());
     return;
   }
 
@@ -341,6 +441,16 @@ Future<void> _runNamedCommand({
     exit(-1);
   }
   return;
+}
+
+void _renamedir({
+  required String from,
+  required String to,
+  required BlueprintStep step,
+}) {
+  from = p.canonicalize(from);
+  to = p.canonicalize(to);
+  Directory(from).renameSync(to);
 }
 
 void _rename({

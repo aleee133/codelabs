@@ -59,12 +59,18 @@ BlueprintStep _$BlueprintStepFromJson(Map json) => $checkedCreate(
             'rmdirs',
             'copydir',
             'copy',
+            'renamedir',
             'rename',
             'retrieve-url',
             'tar',
             '7z',
             'strip-lines-containing',
-            'stop'
+            'stop',
+            'xcode-add-file',
+            'xcode-project-path',
+            'iphoneos-deployment-target',
+            'macosx-deployment-target',
+            'full-screen-macos-main-menu-xib'
           ],
           requiredKeys: const ['name'],
         );
@@ -101,6 +107,8 @@ BlueprintStep _$BlueprintStepFromJson(Map json) => $checkedCreate(
               'copydir', (v) => v == null ? null : FromTo.fromJson(v as Map)),
           copy: $checkedConvert(
               'copy', (v) => v == null ? null : FromTo.fromJson(v as Map)),
+          renamedir: $checkedConvert(
+              'renamedir', (v) => v == null ? null : FromTo.fromJson(v as Map)),
           rename: $checkedConvert(
               'rename', (v) => v == null ? null : FromTo.fromJson(v as Map)),
           platforms: $checkedConvert('platforms',
@@ -116,6 +124,15 @@ BlueprintStep _$BlueprintStepFromJson(Map json) => $checkedCreate(
           stripLinesContaining:
               $checkedConvert('strip-lines-containing', (v) => v as String?),
           stop: $checkedConvert('stop', (v) => v as bool?),
+          xcodeAddFile: $checkedConvert('xcode-add-file', (v) => v as String?),
+          xcodeProjectPath:
+              $checkedConvert('xcode-project-path', (v) => v as String?),
+          macOsMainMenuXib: $checkedConvert(
+              'full-screen-macos-main-menu-xib', (v) => v as String?),
+          iphoneosDeploymentTarget: $checkedConvert(
+              'iphoneos-deployment-target', (v) => v as String?),
+          macosxDeploymentTarget:
+              $checkedConvert('macosx-deployment-target', (v) => v as String?),
         );
         return val;
       },
@@ -126,7 +143,12 @@ BlueprintStep _$BlueprintStepFromJson(Map json) => $checkedCreate(
         'replaceContents': 'replace-contents',
         'retrieveUrl': 'retrieve-url',
         'sevenZip': '7z',
-        'stripLinesContaining': 'strip-lines-containing'
+        'stripLinesContaining': 'strip-lines-containing',
+        'xcodeAddFile': 'xcode-add-file',
+        'xcodeProjectPath': 'xcode-project-path',
+        'macOsMainMenuXib': 'full-screen-macos-main-menu-xib',
+        'iphoneosDeploymentTarget': 'iphoneos-deployment-target',
+        'macosxDeploymentTarget': 'macosx-deployment-target'
       },
     );
 
@@ -152,12 +174,18 @@ Map<String, dynamic> _$BlueprintStepToJson(BlueprintStep instance) =>
       'rmdirs': instance.rmdirs,
       'copydir': instance.copydir,
       'copy': instance.copy,
+      'renamedir': instance.renamedir,
       'rename': instance.rename,
       'retrieve-url': instance.retrieveUrl,
       'tar': instance.tar,
       '7z': instance.sevenZip,
       'strip-lines-containing': instance.stripLinesContaining,
       'stop': instance.stop,
+      'xcode-add-file': instance.xcodeAddFile,
+      'xcode-project-path': instance.xcodeProjectPath,
+      'iphoneos-deployment-target': instance.iphoneosDeploymentTarget,
+      'macosx-deployment-target': instance.macosxDeploymentTarget,
+      'full-screen-macos-main-menu-xib': instance.macOsMainMenuXib,
     };
 
 FromTo _$FromToFromJson(Map json) => $checkedCreate(

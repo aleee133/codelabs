@@ -52,8 +52,8 @@ final _router = GoRouter(
         GoRoute(
           path: 'playlist/:id',
           builder: (context, state) {
-            final title = state.queryParams['title']!;
-            final id = state.params['id']!;
+            final title = state.uri.queryParameters['title']!;
+            final id = state.pathParameters['id']!;
             return Scaffold(
               appBar: AppBar(title: Text(title)),
               body: PlaylistDetails(
@@ -84,11 +84,9 @@ class PlaylistsApp extends StatelessWidget {
       title: 'Your Playlists',
       theme: FlexColorScheme.light(
         scheme: FlexScheme.red,
-        useMaterial3: true,
       ).toTheme,
       darkTheme: FlexColorScheme.dark(
         scheme: FlexScheme.red,
-        useMaterial3: true,
       ).toTheme,
       themeMode: ThemeMode.dark, // Or ThemeMode.System if you'd prefer
       debugShowCheckedModeBanner: false,

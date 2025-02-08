@@ -35,8 +35,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Dash Clicker',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
-        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
       home: const MyHomePage(title: 'Dash Clicker'),
     );
@@ -81,6 +80,7 @@ class _MyHomePageState extends State<MyHomePage> {
           create: (context) => DashPurchases(
             context.read<DashCounter>(),
             context.read<FirebaseNotifier>(),
+            context.read<IAPRepo>(),
           ),
           lazy: false,
         ),

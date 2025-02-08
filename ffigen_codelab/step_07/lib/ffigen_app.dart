@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 import 'dart:ffi';
-import 'dart:io';
+import 'dart:io' show Platform;
 import 'package:ffi/ffi.dart' as ffi;
 import 'package:path/path.dart' as p;
 
@@ -29,8 +29,13 @@ final DynamicLibrary _dylib = () {
   }
   if (Platform.isWindows) {
     if (Platform.environment.containsKey('FLUTTER_TEST')) {
-      return DynamicLibrary.open(p.canonicalize(
-          p.join(r'build\windows\runner\Debug', '$_libName.dll')));
+      return switch (Abi.current()) {
+        Abi.windowsArm64 => DynamicLibrary.open(p.canonicalize(
+            p.join(r'build\windows\arm64\runner\Debug', '$_libName.dll'))),
+        Abi.windowsX64 => DynamicLibrary.open(p.canonicalize(
+            p.join(r'build\windows\x64\runner\Debug', '$_libName.dll'))),
+        _ => throw 'Unsupported platform',
+      };
     }
     return DynamicLibrary.open('$_libName.dll');
   }

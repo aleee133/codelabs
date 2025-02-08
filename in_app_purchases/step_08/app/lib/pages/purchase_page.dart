@@ -17,13 +17,10 @@ class PurchasePage extends StatelessWidget {
     switch (upgrades.storeState) {
       case StoreState.loading:
         storeWidget = _PurchasesLoading();
-        break;
       case StoreState.available:
         storeWidget = _PurchaseList();
-        break;
       case StoreState.notAvailable:
         storeWidget = _PurchasesNotAvailable();
-        break;
     }
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       storeWidget,
@@ -97,14 +94,11 @@ class _PurchaseWidget extends StatelessWidget {
   }
 
   String _trailing() {
-    switch (product.status) {
-      case ProductStatus.purchasable:
-        return product.price;
-      case ProductStatus.purchased:
-        return 'purchased';
-      case ProductStatus.pending:
-        return 'buying...';
-    }
+    return switch (product.status) {
+      ProductStatus.purchasable => product.price,
+      ProductStatus.purchased => 'purchased',
+      ProductStatus.pending => 'buying...'
+    };
   }
 }
 

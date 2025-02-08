@@ -51,8 +51,8 @@ class _GuestBookState extends State<GuestBook> {
                   _controller.clear();
                 }
               },
-              child: Row(
-                children: const [
+              child: const Row(
+                children: [
                   Icon(Icons.send),
                   SizedBox(width: 4),
                   Text('SEND'),
@@ -63,5 +63,11 @@ class _GuestBookState extends State<GuestBook> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 }

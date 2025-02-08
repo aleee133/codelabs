@@ -33,7 +33,15 @@ class Blueprint {
 
   /// Verifies if this blueprint is valid by checking that the steps
   /// are valid.
-  bool get isValid => !steps.any((s) => s.isNotValid);
+  bool get isValid {
+    for (final step in steps) {
+      if (step.isNotValid) {
+        _logger.warning('Invalid step: $step');
+        return false;
+      }
+    }
+    return true;
+  }
 
   factory Blueprint.fromJson(Map json) => _$BlueprintFromJson(json);
 
@@ -106,6 +114,7 @@ class BlueprintStep {
   final List<String> rmdirs;
   final FromTo? copydir;
   final FromTo? copy;
+  final FromTo? renamedir;
   final FromTo? rename;
 
   // Retreiving URLs and unarchiving them
@@ -122,6 +131,24 @@ class BlueprintStep {
   // For debugging & development purposes
   final bool? stop;
 
+  // Xcode project maintenance
+  @JsonKey(name: 'xcode-add-file')
+  final String? xcodeAddFile;
+  @JsonKey(name: 'xcode-project-path')
+  final String? xcodeProjectPath;
+
+  // IPHONEOS_DEPLOYMENT_TARGET
+  @JsonKey(name: 'iphoneos-deployment-target')
+  final String? iphoneosDeploymentTarget;
+  // MACOSX_DEPLOYMENT_TARGET
+  @JsonKey(name: 'macosx-deployment-target')
+  final String? macosxDeploymentTarget;
+
+  // Modifies a macOS MainMenu.xib file to make the titlebar transparent,
+  // content full window, and hide the title bar.
+  @JsonKey(name: 'full-screen-macos-main-menu-xib')
+  final String? macOsMainMenuXib;
+
   BlueprintStep({
     required this.name,
     this.steps = const [],
@@ -137,6 +164,7 @@ class BlueprintStep {
     this.rmdirs = const [],
     this.copydir,
     this.copy,
+    this.renamedir,
     this.rename,
     this.platforms,
     this.dart,
@@ -149,6 +177,11 @@ class BlueprintStep {
     this.sevenZip,
     this.stripLinesContaining,
     this.stop,
+    this.xcodeAddFile,
+    this.xcodeProjectPath,
+    this.macOsMainMenuXib,
+    this.iphoneosDeploymentTarget,
+    this.macosxDeploymentTarget,
   }) {
     if (name.isEmpty) {
       throw ArgumentError.value(name, 'name', 'Cannot be empty.');
@@ -177,6 +210,7 @@ class BlueprintStep {
         rmdirs.isEmpty &&
         copydir == null &&
         copy == null &&
+        renamedir == null &&
         rename == null &&
         rm == null &&
         pod == null &&
@@ -186,7 +220,10 @@ class BlueprintStep {
         retrieveUrl == null &&
         tar == null &&
         sevenZip == null &&
-        stripLinesContaining == null) {
+        stripLinesContaining == null &&
+        xcodeAddFile == null &&
+        xcodeProjectPath == null &&
+        macOsMainMenuXib == null) {
       _logger.warning('Invalid step with no action: $name');
       return false;
     }
@@ -205,6 +242,7 @@ class BlueprintStep {
           rmdirs.isNotEmpty ||
           copydir != null ||
           copy != null ||
+          renamedir != null ||
           rename != null ||
           rm != null ||
           pod != null ||
@@ -214,7 +252,10 @@ class BlueprintStep {
           retrieveUrl != null ||
           tar != null ||
           sevenZip != null ||
-          stripLinesContaining != null) {
+          stripLinesContaining != null ||
+          xcodeAddFile != null ||
+          xcodeProjectPath != null ||
+          macOsMainMenuXib != null) {
         _logger.warning('Invalid step sub-steps and other commands: $name');
         return false;
       }
@@ -275,6 +316,16 @@ class BlueprintStep {
       return false;
     }
 
+    // If we have a xcodeAddFile, we need a path to the xcode project path
+    if (xcodeAddFile != null &&
+        xcodeProjectPath == null &&
+        iphoneosDeploymentTarget == null &&
+        macosxDeploymentTarget == null) {
+      _logger.warning(
+          'Invalid step, xcode-add-file with no xcode-project-path, iphoneos-deployment-target or macosx-deployment-target: $name');
+      return false;
+    }
+
     // If we have a patch, we don't want a replace-contents, base64-contents or command(s)
     if ((patch != null || patchU != null || patchC != null) &&
         (replaceContents != null ||
@@ -285,6 +336,7 @@ class BlueprintStep {
             rmdirs.isNotEmpty ||
             copydir != null ||
             copy != null ||
+            renamedir != null ||
             rename != null ||
             pod != null ||
             dart != null ||
@@ -292,7 +344,10 @@ class BlueprintStep {
             git != null ||
             retrieveUrl != null ||
             tar != null ||
-            sevenZip != null)) {
+            sevenZip != null ||
+            stripLinesContaining != null ||
+            xcodeAddFile != null ||
+            xcodeProjectPath != null)) {
       _logger.warning(
           'Invalid step, patch with command(s), replace-contents, or base64-contents: $name');
       return false;

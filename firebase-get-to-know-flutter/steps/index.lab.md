@@ -33,7 +33,7 @@ In this codelab, you learn some of the basics of  [Firebase](http://firebase.goo
 * How to to build an event RSVP and guestbook chat app on Android, iOS, the Web, and macOS with Flutter.
 * How to authenticate users with Firebase Authentication and sync data with Firestore.
 
-| <p align=center><img style="width: 240.00px" src="img/c62416352b641c75.png"></p> | <img style="width: 313.73px" src="img/71935c62efd2aeb5.png"> |
+| <p align=center><img style="width: 240.00px" src="img/c62416352b641c75.png" alt="The home screen of the app on Android"></p> | <img style="width: 313.73px" src="img/71935c62efd2aeb5.png" alt="The home screen of the app on iOS"> |
 | --- | --- |
 | <img style="width: 298.00px" src="img/73245a514a97e5a6.png"> | <img style="width: 298.00px" src="img/ace882b7591fe799.png"> |
 
@@ -96,9 +96,9 @@ You use the helper widgets from the `lib/src/widgets.dart` file in the form of `
 
 Here's what your app looks like on Android, iOS, the Web, and macOS:
 
-| <p align=center><img style="width: 240.00px" src="img/9fd9346e7c12430b.png"></p> | <img style="width: 313.19px" src="img/b3d8b115d6e299fa.png"> |
+| <p align=center><img style="width: 240.00px" src="img/9fd9346e7c12430b.png" alt="The home screen of the app on Android"></p> | <img style="width: 313.19px" src="img/b3d8b115d6e299fa.png" alt="The home screen of the app on iOS"> |
 | --- | --- |
-| <img style="width: 298.00px" src="img/a954c360597eb22c.png"> | <img style="width: 298.00px" src="img/29f9a966c92e63a0.png"> |
+| <img style="width: 298.00px" src="img/a954c360597eb22c.png" alt="The home screen of the app on web"> | <img style="width: 298.00px" src="img/29f9a966c92e63a0.png" alt="The home screen of the app on macOS"> |
 
 
 ## Create and configure a Firebase project
@@ -115,7 +115,7 @@ The display of event information is great for your guests, but it isn't very use
 
 <img src="img/4395e4e67c08043a.png" alt="4395e4e67c08043a.png"  width="624.00" />
 
-4. Click through the project creation options. If prompted, accept the Firebase terms, but skip setup of Google Analytics because you won't be use it for this app.
+4. Click through the project creation options. If prompted, accept the Firebase terms, but skip setup of Google Analytics because you won't be using it for this app.
 
 <img src="img/b7138cde5f2c7b61.png" alt="b7138cde5f2c7b61.png"  width="624.00" />
 
@@ -140,7 +140,7 @@ Some of these products need special configuration or you need to enable them in 
 The web app uses  [Firestore](https://firebase.google.com/docs/firestore/) to save chat messages and receive new chat messages.
 
 Enable Firestore:
-* In the **Build** menu, click **Cloud Firestore > Create database**.
+* In the **Build** menu, click **Firestore Database > Create database**.
 
 <img src="img/99e8429832d23fa3.png" alt="99e8429832d23fa3.png"  width="624.00" />
 
@@ -254,7 +254,7 @@ The configuration command guides you through the following processes:
 
 Flutter on macOS builds fully sandboxed apps. As this app integrates with the network to communicate with the Firebase servers, you need to configure your app with network client privileges.
 
-####  [macos/Runner/DebugProfile.entitlements](https://github.com/flutter/codelabs/blob/master/firebase-get-to-know-flutter/step_04/macos/Runner/DebugProfile.entitlements)
+####  [macos/Runner/DebugProfile.entitlements](https://github.com/flutter/codelabs/blob/main/firebase-get-to-know-flutter/step_04/macos/Runner/DebugProfile.entitlements)
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -273,7 +273,7 @@ Flutter on macOS builds fully sandboxed apps. As this app integrates with the ne
 </plist>
 ```
 
-####  [macos/Runner/Release.entitlements](https://github.com/flutter/codelabs/blob/master/firebase-get-to-know-flutter/step_04/macos/Runner/Release.entitlements)
+####  [macos/Runner/Release.entitlements](https://github.com/flutter/codelabs/blob/main/firebase-get-to-know-flutter/step_04/macos/Runner/Release.entitlements)
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -303,7 +303,7 @@ Use the  [`provider` package](https://pub.dev/packages/provider) to make a centr
 
 1. Create a new file named `app_state.dart` with the following content:
 
-####  [lib/app_state.dart](https://github.com/flutter/codelabs/blob/master/firebase-get-to-know-flutter/step_05/lib/app_state.dart#L1)
+####  [lib/app_state.dart](https://github.com/flutter/codelabs/blob/main/firebase-get-to-know-flutter/step_05/lib/app_state.dart#L1)
 
 ```dart
 import 'package:firebase_auth/firebase_auth.dart'
@@ -352,7 +352,7 @@ You only use a provider to communicate the state of a user's login status to the
 
 1. Modify the imports at the top of the `lib/main.dart` file:
 
-####  [lib/main.dart](https://github.com/flutter/codelabs/blob/master/firebase-get-to-know-flutter/step_05/lib/main.dart#L1)
+####  [lib/main.dart](https://github.com/flutter/codelabs/blob/main/firebase-get-to-know-flutter/step_05/lib/main.dart#L1)
 
 ```dart
 import 'package:firebase_ui_auth/firebase_ui_auth.dart'; // new
@@ -367,7 +367,7 @@ import 'home_page.dart';
 
 2. Connect the app state with the app initialization and then add the authentication flow to `HomePage`:
 
-####  [lib/main.dart](https://github.com/flutter/codelabs/blob/master/firebase-get-to-know-flutter/step_05/lib/main.dart#L14)
+####  [lib/main.dart](https://github.com/flutter/codelabs/blob/main/firebase-get-to-know-flutter/step_05/lib/main.dart#L14)
 
 ```dart
 void main() {
@@ -386,7 +386,7 @@ The modification to the `main()` function makes the provider package responsible
 
 3. Update your app to handle navigation to different screens that FirebaseUI provides for you, by creating a `GoRouter` configuration:
 
-####  [lib/main.dart](https://github.com/flutter/codelabs/blob/master/firebase-get-to-know-flutter/step_05/lib/main.dart#L23)
+####  [lib/main.dart](https://github.com/flutter/codelabs/blob/main/firebase-get-to-know-flutter/step_05/lib/main.dart#L23)
 
 ```dart
 // Add GoRouter configuration outside the App class
@@ -411,25 +411,25 @@ final _router = GoRouter(
                   context.push(uri.toString());
                 })),
                 AuthStateChangeAction(((context, state) {
-                  if (state is SignedIn || state is UserCreated) {
-                    var user = (state is SignedIn)
-                        ? state.user
-                        : (state as UserCreated).credential.user;
-                    if (user == null) {
-                      return;
-                    }
-                    if (state is UserCreated) {
-                      user.updateDisplayName(user.email!.split('@')[0]);
-                    }
-                    if (!user.emailVerified) {
-                      user.sendEmailVerification();
-                      const snackBar = SnackBar(
-                          content: Text(
-                              'Please check your email to verify your email address'));
-                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                    }
-                    context.pushReplacement('/');
+                  final user = switch (state) {
+                    SignedIn state => state.user,
+                    UserCreated state => state.credential.user,
+                    _ => null
+                  };
+                  if (user == null) {
+                    return;
                   }
+                  if (state is UserCreated) {
+                    user.updateDisplayName(user.email!.split('@')[0]);
+                  }
+                  if (!user.emailVerified) {
+                    user.sendEmailVerification();
+                    const snackBar = SnackBar(
+                        content: Text(
+                            'Please check your email to verify your email address'));
+                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                  }
+                  context.pushReplacement('/');
                 })),
               ],
             );
@@ -438,7 +438,7 @@ final _router = GoRouter(
             GoRoute(
               path: 'forgot-password',
               builder: (context, state) {
-                final arguments = state.queryParams;
+                final arguments = state.uri.queryParameters;
                 return ForgotPasswordScreen(
                   email: arguments['email'],
                   headerMaxExtent: 200,
@@ -483,7 +483,6 @@ class App extends StatelessWidget {
           Theme.of(context).textTheme,
         ),
         visualDensity: VisualDensity.adaptivePlatformDensity,
-        useMaterial3: true,
       ),
       routerConfig: _router, // new
     );
@@ -495,7 +494,7 @@ Each screen has a different type of action associated with it based on the new s
 
 4. In the `HomePage` class's build method, integrate the app state with the `AuthFunc` widget:
 
-####  [lib/home_page.dart](https://github.com/flutter/codelabs/blob/master/firebase-get-to-know-flutter/step_05/lib/home_page.dart#L14)
+####  [lib/home_page.dart](https://github.com/flutter/codelabs/blob/main/firebase-get-to-know-flutter/step_05/lib/home_page.dart#L14)
 
 ```dart
 import 'package:firebase_auth/firebase_auth.dart' // new
@@ -596,7 +595,7 @@ In this section, you add the functionality for users to write messages to the da
 
 1. Create a new file named `guest_book.dart`, add a `GuestBook` stateful widget to construct the UI elements of a message field and a send button:
 
-####  [lib/guest_book.dart](https://github.com/flutter/codelabs/blob/master/firebase-get-to-know-flutter/step_06/lib/guest_book.dart)
+####  [lib/guest_book.dart](https://github.com/flutter/codelabs/blob/main/firebase-get-to-know-flutter/step_06/lib/guest_book.dart)
 
 ```dart
 import 'dart:async';
@@ -686,9 +685,9 @@ While this is enough to display the widget, it isn't sufficient to do anything u
 
 #### App preview
 
-| <p align=center><img style="width: 240.00px" src="img/3454c60868571147.png"></p> | <img style="width: 317.30px" src="img/393bf52a546e9567.png"> |
+| <p align=center><img style="width: 240.00px" src="img/3454c60868571147.png" alt="The home screen of the app on Android with chat integration"></p> | <img style="width: 317.30px" src="img/393bf52a546e9567.png" alt="The home screen of the app on iOS with chat integration"> |
 | --- | --- |
-| <img style="width: 298.00px" src="img/c0f8f4de66dc0d04.png"> | <img style="width: 298.00px" src="img/9b5e06ea495ef00d.png"> |
+| <img style="width: 298.00px" src="img/c0f8f4de66dc0d04.png" alt="The home screen of the app on web with chat integration"> | <img style="width: 298.00px" src="img/9b5e06ea495ef00d.png" alt="The home screen of the app on macOS with chat integration"> |
 
 When a user clicks **SEND**, it triggers the following code snippet. It adds the contents of the message input field to the `guestbook` collection of the database. Specifically, the `addMessageToGuestBook` method adds the message content to a new document with an automatically generated ID in the `guestbook` collection.
 
@@ -696,7 +695,7 @@ Note that `FirebaseAuth.instance.currentUser.uid` is a reference to the autogene
 
 * In the `lib/app_state.dart` file, add the `addMessageToGuestBook` method. You connect this capability with the user interface in the next step.
 
-####  [lib/app_state.dart](https://github.com/flutter/codelabs/blob/master/firebase-get-to-know-flutter/step_06/lib/app_state.dart#L41)
+####  [lib/app_state.dart](https://github.com/flutter/codelabs/blob/main/firebase-get-to-know-flutter/step_06/lib/app_state.dart#L41)
 
 ```dart
 import 'package:cloud_firestore/cloud_firestore.dart'; // new
@@ -737,7 +736,7 @@ You have a UI where the user can enter the text they want to add to the Guest Bo
 
 * In the `lib/home_page.dart` file, make the following change to the `HomePage` widget:
 
-####  [lib/home_page.dart](https://github.com/flutter/codelabs/blob/master/firebase-get-to-know-flutter/step_06/lib/home_page.dart#L15)
+####  [lib/home_page.dart](https://github.com/flutter/codelabs/blob/main/firebase-get-to-know-flutter/step_06/lib/home_page.dart#L15)
 
 ```dart
 import 'package:firebase_auth/firebase_auth.dart'
@@ -830,7 +829,7 @@ To display messages, you need to add listeners that trigger when data changes an
 
 1. Create a new file `guest_book_message.dart`, add the following class to expose a structured view of the data that you store in Firestore.
 
-####  [lib/guest_book_message.dart](https://github.com/flutter/codelabs/blob/master/firebase-get-to-know-flutter/step_07/lib/guest_book_message.dart)
+####  [lib/guest_book_message.dart](https://github.com/flutter/codelabs/blob/main/firebase-get-to-know-flutter/step_07/lib/guest_book_message.dart)
 
 ```dart
 class GuestBookMessage {
@@ -843,7 +842,7 @@ class GuestBookMessage {
 
 2. In the `lib/app_state.dart` file, add the following imports:
 
-####  [lib/app_state.dart](https://github.com/flutter/codelabs/blob/master/firebase-get-to-know-flutter/step_07/lib/app_staet.dart#L1)
+####  [lib/app_state.dart](https://github.com/flutter/codelabs/blob/main/firebase-get-to-know-flutter/step_07/lib/app_state.dart#L1)
 
 ```dart
 import 'dart:async';                                     // new
@@ -861,7 +860,7 @@ import 'guest_book_message.dart';                        // new
 
 3. In section of `ApplicationState` where you define state and getters, add the following lines:
 
-####  [lib/app_state.dart](https://github.com/flutter/codelabs/blob/master/firebase-get-to-know-flutter/step_07/lib/app_staet.dart#L22)
+####  [lib/app_state.dart](https://github.com/flutter/codelabs/blob/main/firebase-get-to-know-flutter/step_07/lib/app_state.dart#L22)
 
 ```dart
   bool _loggedIn = false;
@@ -876,7 +875,7 @@ import 'guest_book_message.dart';                        // new
 
 4. In the initialization section of `ApplicationState`, add the following lines to subscribe to a query over the document collection when a user logs in and unsubscribe when they log out:
 
-####  [lib/app_state.dart](https://github.com/flutter/codelabs/blob/master/firebase-get-to-know-flutter/step_07/lib/app_state.dart#L29)
+####  [lib/app_state.dart](https://github.com/flutter/codelabs/blob/main/firebase-get-to-know-flutter/step_07/lib/app_state.dart#L29)
 
 ```dart
   Future<void> init() async {
@@ -930,7 +929,7 @@ import 'guest_book_message.dart';
 
 6. In the `GuestBook` widget, add a list of messages as part of the configuration to connect this changing state to the user interface:
 
-####  [lib/guest_book.dart](https://github.com/flutter/codelabs/blob/master/firebase-get-to-know-flutter/step_07/lib/guest_book.dart#L12)
+####  [lib/guest_book.dart](https://github.com/flutter/codelabs/blob/main/firebase-get-to-know-flutter/step_07/lib/guest_book.dart#L12)
 
 ```dart
 class GuestBook extends StatefulWidget {
@@ -951,7 +950,7 @@ class GuestBook extends StatefulWidget {
 
 7. In `_GuestBookState`, modify the `build` method as follows to expose this configuration:
 
-####  [lib/guest_book.dart](https://github.com/flutter/codelabs/blob/master/firebase-get-to-know-flutter/step_07/lib/guest_book.dart#L26)
+####  [lib/guest_book.dart](https://github.com/flutter/codelabs/blob/main/firebase-get-to-know-flutter/step_07/lib/guest_book.dart#L26)
 
 ```dart
 class _GuestBookState extends State<GuestBook> {
@@ -1021,7 +1020,7 @@ You wrap the previous content of the `build()` method with a `Column` widget and
 
 8. Update the body of `HomePage` to correctly construct `GuestBook` with the new `messages` parameter:
 
-####  [lib/home_page.dart](https://github.com/flutter/codelabs/blob/master/firebase-get-to-know-flutter/step_07/lib/home_page.dart#L48)
+####  [lib/home_page.dart](https://github.com/flutter/codelabs/blob/main/firebase-get-to-know-flutter/step_07/lib/home_page.dart#L48)
 
 ```dart
 Consumer<ApplicationState>(
@@ -1055,9 +1054,9 @@ Congratulations! You read Firestore documents in your app!
 
 #### App preview
 
-| <p align=center><img style="width: 240.00px" src="img/a26378d2c9ce8904.png"></p> | <img style="width: 310.88px" src="img/8bf20f6736281f25.png"> |
+| <p align=center><img style="width: 240.00px" src="img/a26378d2c9ce8904.png" alt="The home screen of the app on Android with chat integration"></p> | <img style="width: 310.88px" src="img/8bf20f6736281f25.png" alt="The home screen of the app on iOS with chat integration"> |
 | --- | --- |
-| <img style="width: 298.00px" src="img/ea8c4d640fbeefe.png"> | <img style="width: 298.00px" src="img/681f61235f4a73eb.png"> |
+| <img style="width: 298.00px" src="img/ea8c4d640fbeefe.png" alt="The home screen of the app on web with chat integration"> | <img style="width: 298.00px" src="img/681f61235f4a73eb.png" alt="The home screen of the app on macOS with chat integration"> |
 
 
 ## Set up basic security rules
@@ -1140,7 +1139,7 @@ In this step, you get organized and let people know how many people are coming. 
 
 1. In the `lib/app_state.dart` file, add the following lines to the accessors section of the `ApplicationState` so that the UI code can interact with this state:
 
-####  [lib/app_state.dart](https://github.com/flutter/codelabs/blob/master/firebase-get-to-know-flutter/step_09/lib/app_state.dart#L37)
+####  [lib/app_state.dart](https://github.com/flutter/codelabs/blob/main/firebase-get-to-know-flutter/step_09/lib/app_state.dart#L37)
 
 ```dart
 int _attendees = 0;
@@ -1163,7 +1162,7 @@ set attending(Attending attending) {
 
 2. Update the `ApplicationState`'s `init()` method as follows:
 
-####  [lib/app_state.dart](https://github.com/flutter/codelabs/blob/master/firebase-get-to-know-flutter/step_09/lib/app_state.dart#L80)
+####  [lib/app_state.dart](https://github.com/flutter/codelabs/blob/main/firebase-get-to-know-flutter/step_09/lib/app_state.dart#L80)
 
 ```dart
   Future<void> init() async {
@@ -1237,7 +1236,7 @@ This code adds an always-subscribed query to determine the number of attendees a
 
 3. Add the following enumeration at the top of the `lib/app_state.dart` file.
 
-####  [lib/app_state.dart](https://github.com/flutter/codelabs/blob/master/firebase-get-to-know-flutter/step_09/lib/app_state.dart#L5)
+####  [lib/app_state.dart](https://github.com/flutter/codelabs/blob/main/firebase-get-to-know-flutter/step_09/lib/app_state.dart#L5)
 
 ```dart
 enum Attending { yes, no, unknown }
@@ -1245,7 +1244,7 @@ enum Attending { yes, no, unknown }
 
 4. Create a new file `yes_no_selection.dart`, define a new widget that acts like radio buttons:
 
-####  [lib/yes_no_selection.dart](https://github.com/flutter/codelabs/blob/master/firebase-get-to-know-flutter/step_09/lib/yes_no_selection.dart)
+####  [lib/yes_no_selection.dart](https://github.com/flutter/codelabs/blob/main/firebase-get-to-know-flutter/step_09/lib/yes_no_selection.dart)
 
 ```dart
 import 'package:flutter/material.dart';
@@ -1267,8 +1266,7 @@ class YesNoSelection extends StatelessWidget {
           padding: const EdgeInsets.all(8.0),
           child: Row(
             children: [
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(elevation: 0),
+              FilledButton(
                 onPressed: () => onSelection(Attending.yes),
                 child: const Text('YES'),
               ),
@@ -1290,8 +1288,7 @@ class YesNoSelection extends StatelessWidget {
                 child: const Text('YES'),
               ),
               const SizedBox(width: 8),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(elevation: 0),
+              FilledButton(
                 onPressed: () => onSelection(Attending.no),
                 child: const Text('NO'),
               ),
@@ -1324,7 +1321,7 @@ It starts in an indeterminate state with neither **Yes** nor **No** selected. On
 
 5. Update `HomePage`'s `build()` method to take advantage of `YesNoSelection`, enable a logged-in user to nominate whether they're attending, and display the number of attendees for the event:
 
-####  [lib/home_page.dart](https://github.com/flutter/codelabs/blob/master/firebase-get-to-know-flutter/step_09/lib/home_page.dart#L56)
+####  [lib/home_page.dart](https://github.com/flutter/codelabs/blob/main/firebase-get-to-know-flutter/step_09/lib/home_page.dart#L56)
 
 ```dart
 Consumer<ApplicationState>(
@@ -1332,12 +1329,11 @@ Consumer<ApplicationState>(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       // Add from here...
-      if (appState.attendees >= 2)
-        Paragraph('${appState.attendees} people going')
-      else if (appState.attendees == 1)
-        const Paragraph('1 person going')
-      else
-        const Paragraph('No one going'),
+      switch (appState.attendees) {
+        1 => const Paragraph('1 person going'),
+        >= 2 => Paragraph('${appState.attendees} people going'),
+        _ => const Paragraph('No one going'),
+      },
       // ...to here.
       if (appState.loggedIn) ...[
         // Add from here...
@@ -1400,9 +1396,9 @@ service cloud.firestore {
 
 #### App preview
 
-| <p align=center><img style="width: 240.00px" src="img/c62416352b641c75.png"></p> | <img style="width: 313.73px" src="img/71935c62efd2aeb5.png"> |
+| <p align=center><img style="width: 240.00px" src="img/c62416352b641c75.png" alt="The home screen of the app on Android"></p> | <img style="width: 313.73px" src="img/71935c62efd2aeb5.png" alt="The home screen of the app on iOS"> |
 | --- | --- |
-| <img style="width: 298.00px" src="img/73245a514a97e5a6.png"> | <img style="width: 298.00px" src="img/ace882b7591fe799.png"> |
+| <img style="width: 298.00px" src="img/73245a514a97e5a6.png" alt="The home screen of the app on web"> | <img style="width: 298.00px" src="img/ace882b7591fe799.png" alt="The home screen of the app on macOS"> |
 
 
 ## Congratulations!

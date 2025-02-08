@@ -1,5 +1,3 @@
-// ignore_for_file: avoid_print
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -27,7 +25,7 @@ class LoggedOutView extends StatelessWidget {
               child: FilledButton(
                 onPressed: () async {
                   await state.logIn('dash@email.com', 'dashword').then((_) {
-                    if (state.user != null) {
+                    if (state.user != null && context.mounted) {
                       context.go('/');
                     }
                   });

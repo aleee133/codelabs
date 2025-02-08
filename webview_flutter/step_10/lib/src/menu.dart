@@ -29,15 +29,13 @@ class _MenuState extends State<Menu> {
           case _MenuOptions.navigationDelegate:
             await widget.controller
                 .loadRequest(Uri.parse('https://youtube.com'));
-            break;
           case _MenuOptions.userAgent:
             final userAgent = await widget.controller
                 .runJavaScriptReturningResult('navigator.userAgent');
-            if (!mounted) return;
+            if (!context.mounted) return;
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               content: Text('$userAgent'),
             ));
-            break;
           case _MenuOptions.javascriptChannel:
             await widget.controller.runJavaScript('''
 var req = new XMLHttpRequest();
@@ -51,7 +49,6 @@ req.onload = function() {
   }
 }
 req.send();''');
-            break;
         }
       },
       itemBuilder: (context) => [

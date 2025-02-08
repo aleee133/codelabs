@@ -31,9 +31,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'GitHub Client',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         visualDensity: VisualDensity.adaptivePlatformDensity,
-        useMaterial3: true,
       ),
       home: const MyHomePage(title: 'GitHub Client'),
     );
