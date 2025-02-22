@@ -25,8 +25,9 @@ class ListDetailTransition extends StatefulWidget {
 
 class _ListDetailTransitionState extends State<ListDetailTransition> {
   Animation<double> widthAnimation = const AlwaysStoppedAnimation(0);
-  late final Animation<double> sizeAnimation =
-      SizeAnimation(parent: widget.animation);
+  late final Animation<double> sizeAnimation = SizeAnimation(
+    parent: widget.animation,
+  );
   late final Animation<Offset> offsetAnimation = Tween<Offset>(
     begin: const Offset(1, 0),
     end: Offset.zero,
@@ -42,14 +43,12 @@ class _ListDetailTransitionState extends State<ListDetailTransition> {
     // gradually changes to 1/3 and 2/3 for widgets one and two. When
     // the window is wider than 1600, the allocation changes to 1/4  3/4.
     final double width = MediaQuery.of(context).size.width;
-    double nextFlexFactor = 1000;
-    if (width >= 800 && width < 1200) {
-      nextFlexFactor = lerpDouble(1000, 2000, (width - 800) / 400)!;
-    } else if (width >= 1200 && width < 1600) {
-      nextFlexFactor = lerpDouble(2000, 3000, (width - 1200) / 400)!;
-    } else if (width > 1600) {
-      nextFlexFactor = 3000;
-    }
+    double nextFlexFactor = switch (width) {
+      >= 800 && < 1200 => lerpDouble(1000, 2000, (width - 800) / 400)!,
+      >= 1200 && < 1600 => lerpDouble(2000, 3000, (width - 1200) / 400)!,
+      >= 1600 => 3000,
+      _ => 1000,
+    };
 
     // Continue along the current animation curve if the
     // destionation flex factor has not changed.
@@ -58,8 +57,10 @@ class _ListDetailTransitionState extends State<ListDetailTransition> {
     }
 
     if (currentFlexFactor == 0) {
-      widthAnimation =
-          Tween<double>(begin: 0, end: nextFlexFactor).animate(sizeAnimation);
+      widthAnimation = Tween<double>(
+        begin: 0,
+        end: nextFlexFactor,
+      ).animate(sizeAnimation);
     } else {
       final TweenSequence<double> sequence = TweenSequence([
         if (sizeAnimation.value > 0) ...[
@@ -87,19 +88,16 @@ class _ListDetailTransitionState extends State<ListDetailTransition> {
     return widthAnimation.value.toInt() == 0
         ? widget.one
         : Row(
-            children: [
-              Flexible(
-                flex: 1000,
-                child: widget.one,
+          children: [
+            Flexible(flex: 1000, child: widget.one),
+            Flexible(
+              flex: widthAnimation.value.toInt(),
+              child: FractionalTranslation(
+                translation: offsetAnimation.value,
+                child: widget.two,
               ),
-              Flexible(
-                flex: widthAnimation.value.toInt(),
-                child: FractionalTranslation(
-                  translation: offsetAnimation.value,
-                  child: widget.two,
-                ),
-              ),
-            ],
-          );
+            ),
+          ],
+        );
   }
 }

@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp.router(
       scrollBehavior: AppScrollBehavior(),
       routerConfig: _router(),
-      theme: ThemeData(useMaterial3: true),
+      theme: ThemeData(),
     );
   }
 
@@ -45,7 +45,7 @@ class MyApp extends StatelessWidget {
 class AppScrollBehavior extends MaterialScrollBehavior {
   @override
   Set<PointerDeviceKind> get dragDevices => {
-        PointerDeviceKind.touch,
-        PointerDeviceKind.mouse,
-      };
+    PointerDeviceKind.touch,
+    PointerDeviceKind.mouse,
+  };
 }

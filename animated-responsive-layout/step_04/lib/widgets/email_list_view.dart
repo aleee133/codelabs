@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import '../models/data.dart' as data;
 import '../models/models.dart';
 import 'email_widget.dart';
-import 'search_bar.dart';
+import 'search_bar.dart' as search_bar;
 
 class EmailListView extends StatelessWidget {
   const EmailListView({
@@ -28,25 +28,23 @@ class EmailListView extends StatelessWidget {
       child: ListView(
         children: [
           const SizedBox(height: 8),
-          SearchBar(currentUser: currentUser),
+          search_bar.SearchBar(currentUser: currentUser),
           const SizedBox(height: 8),
-          ...List.generate(
-            data.emails.length,
-            (index) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 8.0),
-                child: EmailWidget(
-                  email: data.emails[index],
-                  onSelected: onSelected != null
-                      ? () {
+          ...List.generate(data.emails.length, (index) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: EmailWidget(
+                email: data.emails[index],
+                onSelected:
+                    onSelected != null
+                        ? () {
                           onSelected!(index);
                         }
-                      : null,
-                  isSelected: selectedIndex == index,
-                ),
-              );
-            },
-          ),
+                        : null,
+                isSelected: selectedIndex == index,
+              ),
+            );
+          }),
         ],
       ),
     );

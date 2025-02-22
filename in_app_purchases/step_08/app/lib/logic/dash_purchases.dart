@@ -18,6 +18,7 @@ class DashPurchases extends ChangeNotifier {
 
   bool get beautifiedDash => _beautifiedDashUpgrade;
   bool _beautifiedDashUpgrade = false;
+
   final iapConnection = IAPConnection.instance;
 
   DashPurchases(this.counter) {
@@ -60,38 +61,40 @@ class DashPurchases extends ChangeNotifier {
     switch (product.id) {
       case storeKeyConsumable:
         await iapConnection.buyConsumable(purchaseParam: purchaseParam);
-        break;
       case storeKeySubscription:
+      case storeKeyUpgrade:
         await iapConnection.buyNonConsumable(purchaseParam: purchaseParam);
-        break;
       default:
         throw ArgumentError.value(
-            product.productDetails, '${product.id} is not a known product');
+          product.productDetails,
+          '${product.id} is not a known product',
+        );
     }
   }
 
-  void _onPurchaseUpdate(List<PurchaseDetails> purchaseDetailsList) {
-    purchaseDetailsList.forEach(_handlePurchase);
+  Future<void> _onPurchaseUpdate(
+    List<PurchaseDetails> purchaseDetailsList,
+  ) async {
+    for (var purchaseDetails in purchaseDetailsList) {
+      await _handlePurchase(purchaseDetails);
+    }
     notifyListeners();
   }
 
-  void _handlePurchase(PurchaseDetails purchaseDetails) {
+  Future<void> _handlePurchase(PurchaseDetails purchaseDetails) async {
     if (purchaseDetails.status == PurchaseStatus.purchased) {
       switch (purchaseDetails.productID) {
         case storeKeySubscription:
           counter.applyPaidMultiplier();
-          break;
         case storeKeyConsumable:
           counter.addBoughtDashes(2000);
-          break;
         case storeKeyUpgrade:
           _beautifiedDashUpgrade = true;
-          break;
       }
     }
 
     if (purchaseDetails.pendingCompletePurchase) {
-      iapConnection.completePurchase(purchaseDetails);
+      await iapConnection.completePurchase(purchaseDetails);
     }
   }
 

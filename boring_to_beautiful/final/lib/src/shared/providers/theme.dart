@@ -28,12 +28,13 @@ class ThemeSettingChange extends Notification {
 }
 
 class ThemeProvider extends InheritedWidget {
-  const ThemeProvider(
-      {super.key,
-      required this.settings,
-      required this.lightDynamic,
-      required this.darkDynamic,
-      required super.child});
+  const ThemeProvider({
+    super.key,
+    required this.settings,
+    required this.lightDynamic,
+    required this.darkDynamic,
+    required super.child,
+  });
 
   final ValueNotifier<ThemeSettings> settings;
   final ColorScheme? lightDynamic;
@@ -59,7 +60,9 @@ class ThemeProvider extends InheritedWidget {
 
   Color blend(Color targetColor) {
     return Color(
-        Blend.harmonize(targetColor.value, settings.value.sourceColor.value));
+      // ignore: deprecated_member_use
+      Blend.harmonize(targetColor.value, settings.value.sourceColor.value),
+    );
   }
 
   Color source(Color? target) {
@@ -71,18 +74,18 @@ class ThemeProvider extends InheritedWidget {
   }
 
   ColorScheme colors(Brightness brightness, Color? targetColor) {
-    final dynamicPrimary = brightness == Brightness.light
-        ? lightDynamic?.primary
-        : darkDynamic?.primary;
+    final dynamicPrimary =
+        brightness == Brightness.light
+            ? lightDynamic?.primary
+            : darkDynamic?.primary;
     return ColorScheme.fromSeed(
       seedColor: dynamicPrimary ?? source(targetColor),
       brightness: brightness,
     );
   }
 
-  ShapeBorder get shapeMedium => RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      );
+  ShapeBorder get shapeMedium =>
+      RoundedRectangleBorder(borderRadius: BorderRadius.circular(8));
 
   CardTheme cardTheme() {
     return CardTheme(
@@ -112,27 +115,19 @@ class ThemeProvider extends InheritedWidget {
       labelColor: colors.secondary,
       unselectedLabelColor: colors.onSurfaceVariant,
       indicator: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color: colors.secondary,
-            width: 2,
-          ),
-        ),
+        border: Border(bottom: BorderSide(color: colors.secondary, width: 2)),
       ),
     );
   }
 
   BottomAppBarTheme bottomAppBarTheme(ColorScheme colors) {
-    return BottomAppBarTheme(
-      color: colors.surface,
-      elevation: 0,
-    );
+    return BottomAppBarTheme(color: colors.surface, elevation: 0);
   }
 
   BottomNavigationBarThemeData bottomNavigationBarTheme(ColorScheme colors) {
     return BottomNavigationBarThemeData(
       type: BottomNavigationBarType.fixed,
-      backgroundColor: colors.surfaceVariant,
+      backgroundColor: colors.surfaceContainerHighest,
       selectedItemColor: colors.onSurface,
       unselectedItemColor: colors.onSurfaceVariant,
       elevation: 0,
@@ -145,9 +140,7 @@ class ThemeProvider extends InheritedWidget {
   }
 
   DrawerThemeData drawerTheme(ColorScheme colors) {
-    return DrawerThemeData(
-      backgroundColor: colors.surface,
-    );
+    return DrawerThemeData(backgroundColor: colors.surface);
   }
 
   ThemeData light([Color? targetColor]) {
@@ -163,8 +156,7 @@ class ThemeProvider extends InheritedWidget {
       navigationRailTheme: navigationRailTheme(colorScheme),
       tabBarTheme: tabBarTheme(colorScheme),
       drawerTheme: drawerTheme(colorScheme),
-      scaffoldBackgroundColor: colorScheme.background,
-      useMaterial3: true,
+      scaffoldBackgroundColor: colorScheme.surface,
     );
   }
 
@@ -181,8 +173,7 @@ class ThemeProvider extends InheritedWidget {
       navigationRailTheme: navigationRailTheme(colorScheme),
       tabBarTheme: tabBarTheme(colorScheme),
       drawerTheme: drawerTheme(colorScheme),
-      scaffoldBackgroundColor: colorScheme.background,
-      useMaterial3: true,
+      scaffoldBackgroundColor: colorScheme.surface,
     );
   }
 
@@ -208,10 +199,7 @@ class ThemeProvider extends InheritedWidget {
 }
 
 class ThemeSettings {
-  ThemeSettings({
-    required this.sourceColor,
-    required this.themeMode,
-  });
+  ThemeSettings({required this.sourceColor, required this.themeMode});
 
   final Color sourceColor;
   final ThemeMode themeMode;
@@ -222,10 +210,7 @@ Color randomColor() {
 }
 
 // Custom Colors
-const linkColor = CustomColor(
-  name: 'Link Color',
-  color: Color(0xFF00B0FF),
-);
+const linkColor = CustomColor(name: 'Link Color', color: Color(0xFF00B0FF));
 
 class CustomColor {
   const CustomColor({

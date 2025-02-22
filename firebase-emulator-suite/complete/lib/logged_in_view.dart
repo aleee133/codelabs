@@ -1,5 +1,3 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_declarations
-
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -49,7 +47,7 @@ class LoggedInView extends StatelessWidget {
                           EntryView(
                             key: Key('${Random().nextDouble()}'),
                             entry: entry,
-                          )
+                          ),
                       ],
                     );
                   } else {
@@ -58,7 +56,7 @@ class LoggedInView extends StatelessWidget {
                 },
               ),
             ),
-          )
+          ),
         ],
       ),
     );

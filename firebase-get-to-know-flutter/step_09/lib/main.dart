@@ -14,10 +14,12 @@ import 'home_page.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
-  runApp(ChangeNotifierProvider(
-    create: (context) => ApplicationState(),
-    builder: ((context, child) => const App()),
-  ));
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => ApplicationState(),
+      builder: ((context, child) => const App()),
+    ),
+  );
 }
 
 final _router = GoRouter(
@@ -34,32 +36,32 @@ final _router = GoRouter(
                 ForgotPasswordAction(((context, email) {
                   final uri = Uri(
                     path: '/sign-in/forgot-password',
-                    queryParameters: <String, String?>{
-                      'email': email,
-                    },
+                    queryParameters: <String, String?>{'email': email},
                   );
                   context.push(uri.toString());
                 })),
                 AuthStateChangeAction(((context, state) {
-                  if (state is SignedIn || state is UserCreated) {
-                    var user = (state is SignedIn)
-                        ? state.user
-                        : (state as UserCreated).credential.user;
-                    if (user == null) {
-                      return;
-                    }
-                    if (state is UserCreated) {
-                      user.updateDisplayName(user.email!.split('@')[0]);
-                    }
-                    if (!user.emailVerified) {
-                      user.sendEmailVerification();
-                      const snackBar = SnackBar(
-                          content: Text(
-                              'Please check your email to verify your email address'));
-                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                    }
-                    context.pushReplacement('/');
+                  final user = switch (state) {
+                    SignedIn state => state.user,
+                    UserCreated state => state.credential.user,
+                    _ => null,
+                  };
+                  if (user == null) {
+                    return;
                   }
+                  if (state is UserCreated) {
+                    user.updateDisplayName(user.email!.split('@')[0]);
+                  }
+                  if (!user.emailVerified) {
+                    user.sendEmailVerification();
+                    const snackBar = SnackBar(
+                      content: Text(
+                        'Please check your email to verify your email address',
+                      ),
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                  }
+                  context.pushReplacement('/');
                 })),
               ],
             );
@@ -68,7 +70,7 @@ final _router = GoRouter(
             GoRoute(
               path: 'forgot-password',
               builder: (context, state) {
-                final arguments = state.queryParams;
+                final arguments = state.uri.queryParameters;
                 return ForgotPasswordScreen(
                   email: arguments['email'],
                   headerMaxExtent: 200,
@@ -81,27 +83,27 @@ final _router = GoRouter(
           path: 'profile',
           builder: (context, state) {
             return Consumer<ApplicationState>(
-              builder: (context, appState, _) => ProfileScreen(
-                key: ValueKey(appState.emailVerified),
-                providers: const [],
-                actions: [
-                  SignedOutAction(
-                    ((context) {
-                      context.pushReplacement('/');
-                    }),
+              builder:
+                  (context, appState, _) => ProfileScreen(
+                    key: ValueKey(appState.emailVerified),
+                    providers: const [],
+                    actions: [
+                      SignedOutAction(((context) {
+                        context.pushReplacement('/');
+                      })),
+                    ],
+                    children: [
+                      Visibility(
+                        visible: !appState.emailVerified,
+                        child: OutlinedButton(
+                          child: const Text('Recheck Verification State'),
+                          onPressed: () {
+                            appState.refreshLoggedInUser();
+                          },
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-                children: [
-                  Visibility(
-                      visible: !appState.emailVerified,
-                      child: OutlinedButton(
-                        child: const Text('Recheck Verification State'),
-                        onPressed: () {
-                          appState.refreshLoggedInUser();
-                        },
-                      ))
-                ],
-              ),
             );
           },
         ),
@@ -118,15 +120,12 @@ class App extends StatelessWidget {
     return MaterialApp.router(
       title: 'Firebase Meetup',
       theme: ThemeData(
-        buttonTheme: Theme.of(context).buttonTheme.copyWith(
-              highlightColor: Colors.deepPurple,
-            ),
-        primarySwatch: Colors.deepPurple,
-        textTheme: GoogleFonts.robotoTextTheme(
-          Theme.of(context).textTheme,
-        ),
+        buttonTheme: Theme.of(
+          context,
+        ).buttonTheme.copyWith(highlightColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        textTheme: GoogleFonts.robotoTextTheme(Theme.of(context).textTheme),
         visualDensity: VisualDensity.adaptivePlatformDensity,
-        useMaterial3: true,
       ),
       routerConfig: _router,
     );

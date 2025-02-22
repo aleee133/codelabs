@@ -20,17 +20,14 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData.light(useMaterial3: true),
+      theme: ThemeData.light(),
       home: Feed(currentUser: data.user_0),
     );
   }
 }
 
 class Feed extends StatefulWidget {
-  const Feed({
-    super.key,
-    required this.currentUser,
-  });
+  const Feed({super.key, required this.currentUser});
 
   final User currentUser;
 
@@ -41,7 +38,9 @@ class Feed extends StatefulWidget {
 class _FeedState extends State<Feed> {
   late final _colorScheme = Theme.of(context).colorScheme;
   late final _backgroundColor = Color.alphaBlend(
-      _colorScheme.primary.withOpacity(0.14), _colorScheme.surface);
+    _colorScheme.primary.withAlpha(36),
+    _colorScheme.surface,
+  );
 
   int selectedIndex = 0;
   bool wideScreen = false;
@@ -85,24 +84,26 @@ class _FeedState extends State<Feed> {
           ),
         ],
       ),
-      floatingActionButton: wideScreen
-          ? null
-          : FloatingActionButton(
-              backgroundColor: _colorScheme.tertiaryContainer,
-              foregroundColor: _colorScheme.onTertiaryContainer,
-              onPressed: () {},
-              child: const Icon(Icons.add),
-            ),
-      bottomNavigationBar: wideScreen
-          ? null
-          : DisappearingBottomNavigationBar(
-              selectedIndex: selectedIndex,
-              onDestinationSelected: (index) {
-                setState(() {
-                  selectedIndex = index;
-                });
-              },
-            ),
+      floatingActionButton:
+          wideScreen
+              ? null
+              : FloatingActionButton(
+                backgroundColor: _colorScheme.tertiaryContainer,
+                foregroundColor: _colorScheme.onTertiaryContainer,
+                onPressed: () {},
+                child: const Icon(Icons.add),
+              ),
+      bottomNavigationBar:
+          wideScreen
+              ? null
+              : DisappearingBottomNavigationBar(
+                selectedIndex: selectedIndex,
+                onDestinationSelected: (index) {
+                  setState(() {
+                    selectedIndex = index;
+                  });
+                },
+              ),
     );
   }
 }

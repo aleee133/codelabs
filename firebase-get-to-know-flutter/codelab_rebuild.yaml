@@ -2,18 +2,21 @@ name: Get to know Firebase with Flutter
 steps:
   - name: step_02
     steps:
-      - name: Remove generated code.
+      - name: Remove generated code
         rmdir: step_02
-      - name: Create project.
+      - name: Create project
         flutter: create gtk_flutter --platforms=ios,android,web,macos
       - name: Strip DEVELOPMENT_TEAM
         strip-lines-containing: DEVELOPMENT_TEAM =
         path: gtk_flutter/ios/Runner.xcodeproj/project.pbxproj
+      - name: update dependencies
+        path: gtk_flutter
+        flutter: pub upgrade --major-versions
       - name: Configure analysis_options.yaml
         path: gtk_flutter/analysis_options.yaml
         replace-contents: |
           include: ../../analysis_options.yaml
-      - name: Add dependencies.
+      - name: Add dependencies
         path: gtk_flutter
         flutter: pub add google_fonts go_router
       - name: Patch pubspec.yaml
@@ -23,13 +26,13 @@ steps:
           +++ a/firebase-get-to-know-flutter/step_02/pubspec.yaml
           @@ -1,5 +1,6 @@
            name: gtk_flutter
-          -description: A new Flutter project.
-          +description: Get to know Firebase with Flutter
+          -description: "A new Flutter project."
+          +description: "Get to know Firebase with Flutter"
           +
            # The following line prevents the package from being accidentally published to
            # pub.dev using `flutter pub publish`. This is preferred for private packages.
            publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-          @@ -59,6 +60,8 @@ flutter:
+          @@ -58,6 +59,8 @@ flutter:
              # included with your application, so that you can use the icons in
              # the material Icons class.
              uses-material-design: true
@@ -38,21 +41,50 @@ steps:
            
              # To add assets to your application, add an assets section, like this:
              # assets:
-      - name: Patch android/app/build.gradle
-        path: gtk_flutter/android/app/build.gradle
+      - name: Patch android/app/build.gradle.kts
+        path: gtk_flutter/android/app/build.gradle.kts
         patch-u: |
           --- b/firebase-get-to-know-flutter/step_02/android/app/build.gradle
           +++ a/firebase-get-to-know-flutter/step_02/android/app/build.gradle
-          @@ -47,7 +47,7 @@ android {
-                   applicationId "com.example.gtk_flutter"
+          @@ -24,7 +24,7 @@ android {
+                   applicationId = "com.example.gtk_flutter"
                    // You can update the following values to match your application needs.
-                   // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
-          -        minSdkVersion flutter.minSdkVersion
-          +        minSdkVersion 21
-                   targetSdkVersion flutter.targetSdkVersion
-                   versionCode flutterVersionCode.toInteger()
-                   versionName flutterVersionName
-      - name: Remove the README.md.
+                   // For more information, see: https://flutter.dev/to/review-gradle-config.
+          -        minSdk = flutter.minSdkVersion
+          +        minSdk = 23
+                   targetSdk = flutter.targetSdkVersion
+                   versionCode = flutter.versionCode
+                   versionName = flutter.versionName
+      - name: Patch macos/Podfile
+        path: gtk_flutter/macos/Podfile
+        patch-u: |
+          --- b/gtk_flutter/step_02/macos/Podfile
+          +++ a/gtk_flutter/step_02/macos/Podfile
+          @@ -1,4 +1,4 @@
+          -platform :osx, '10.14'
+          +platform :osx, '10.15'
+           
+           # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
+           ENV['COCOAPODS_DISABLE_STATS'] = 'true'
+      - name: Patch macos/Runner.xcodeproj/project.pbxproj
+        xcode-project-path: gtk_flutter/macos/Runner.xcodeproj
+        macosx-deployment-target: '10.15'
+      - name: Patch ios/Podfile
+        path: gtk_flutter/ios/Podfile
+        patch-u: |
+          --- a/firebase-get-to-know-flutter/step_02/ios/Podfile
+          +++ b/firebase-get-to-know-flutter/step_02/ios/Podfile
+          @@ -1,5 +1,5 @@
+           # Uncomment this line to define a global platform for your project
+          -# platform :ios, '12.0'
+          +platform :ios, '13.0'
+           
+           # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
+           ENV['COCOAPODS_DISABLE_STATS'] = 'true'
+      - name: Patch ios/Runner.xcodeproj/project.pbxproj
+        xcode-project-path: gtk_flutter/ios/Runner.xcodeproj
+        iphoneos-deployment-target: '13.0'
+      - name: Remove the README.md
         rm: gtk_flutter/README.md
       - name: VSCode config
         path: gtk_flutter
@@ -67,39 +99,9 @@ steps:
             "version": "0.2.0",
             "configurations": [
               {
-                "name": "iPhone",
+                "name": "gtk_flutter",
                 "request": "launch",
-                "type": "dart",
-                "deviceId": "iPhone"
-              },
-              {
-                "name": "Android",
-                "request": "launch",
-                "type": "dart",
-                "deviceId": "Android"
-              },
-              {
-                "name": "Chrome",
-                "request": "launch",
-                "type": "dart",
-                "deviceId": "Chrome"
-              },
-              {
-                "name": "macOS",
-                "request": "launch",
-                "type": "dart",
-                "deviceId": "macOS"
-              },
-            ],
-            "compounds": [
-              {
-                "name": "All devices",
-                "configurations": [
-                  "Android",
-                  "iPhone",
-                  "Chrome",
-                  "macOS"
-                ]
+                "type": "dart"
               }
             ]
           }
@@ -109,33 +111,30 @@ steps:
           // Copyright 2022 The Flutter Authors. All rights reserved.
           // Use of this source code is governed by a BSD-style license that can be
           // found in the LICENSE file.
-          
+
           import 'package:flutter/material.dart';
           import 'package:google_fonts/google_fonts.dart';
-          
+
           import 'home_page.dart';
-          
+
           void main() {
             runApp(const App());
           }
-          
+
           class App extends StatelessWidget {
             const App({super.key});
-          
+
             @override
             Widget build(BuildContext context) {
               return MaterialApp(
                 title: 'Firebase Meetup',
                 theme: ThemeData(
-                  buttonTheme: Theme.of(context).buttonTheme.copyWith(
-                        highlightColor: Colors.deepPurple,
-                      ),
-                  primarySwatch: Colors.deepPurple,
-                  textTheme: GoogleFonts.robotoTextTheme(
-                    Theme.of(context).textTheme,
-                  ),
+                  buttonTheme: Theme.of(
+                    context,
+                  ).buttonTheme.copyWith(highlightColor: Colors.deepPurple),
+                  colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+                  textTheme: GoogleFonts.robotoTextTheme(Theme.of(context).textTheme),
                   visualDensity: VisualDensity.adaptivePlatformDensity,
-                  useMaterial3: true,
                 ),
                 home: const HomePage(),
               );
@@ -147,20 +146,18 @@ steps:
           // Copyright 2022 The Flutter Authors. All rights reserved.
           // Use of this source code is governed by a BSD-style license that can be
           // found in the LICENSE file.
-          
+
           import 'package:flutter/material.dart';
-          
+
           import 'src/widgets.dart';
-          
+
           class HomePage extends StatelessWidget {
             const HomePage({super.key});
-          
+
             @override
             Widget build(BuildContext context) {
               return Scaffold(
-                appBar: AppBar(
-                  title: const Text('Firebase Meetup'),
-                ),
+                appBar: AppBar(title: const Text('Firebase Meetup')),
                 body: ListView(
                   children: <Widget>[
                     Image.asset('assets/codelab.png'),
@@ -192,22 +189,18 @@ steps:
           // Copyright 2022 The Flutter Authors. All rights reserved.
           // Use of this source code is governed by a BSD-style license that can be
           // found in the LICENSE file.
-          
+
           import 'package:flutter/material.dart';
           import 'package:go_router/go_router.dart';
-          
+
           import 'widgets.dart';
-          
+
           class AuthFunc extends StatelessWidget {
-            const AuthFunc({
-              super.key,
-              required this.loggedIn,
-              required this.signOut,
-            });
-          
+            const AuthFunc({super.key, required this.loggedIn, required this.signOut});
+
             final bool loggedIn;
             final void Function() signOut;
-          
+
             @override
             Widget build(BuildContext context) {
               return Row(
@@ -215,22 +208,24 @@ steps:
                   Padding(
                     padding: const EdgeInsets.only(left: 24, bottom: 8),
                     child: StyledButton(
-                        onPressed: () {
-                          !loggedIn ? context.push('/sign-in') : signOut();
-                        },
-                        child: !loggedIn ? const Text('RSVP') : const Text('Logout')),
+                      onPressed: () {
+                        !loggedIn ? context.push('/sign-in') : signOut();
+                      },
+                      child: !loggedIn ? const Text('RSVP') : const Text('Logout'),
+                    ),
                   ),
                   Visibility(
                     visible: loggedIn,
                     child: Padding(
                       padding: const EdgeInsets.only(left: 24, bottom: 8),
                       child: StyledButton(
-                          onPressed: () {
-                            context.push('/profile');
-                          },
-                          child: const Text('Profile')),
+                        onPressed: () {
+                          context.push('/profile');
+                        },
+                        child: const Text('Profile'),
+                      ),
                     ),
-                  )
+                  ),
                 ],
               );
             }
@@ -241,7 +236,7 @@ steps:
           // Copyright 2022 The Flutter Authors. All rights reserved.
           // Use of this source code is governed by a BSD-style license that can be
           // found in the LICENSE file.
-          
+
           import 'package:flutter/material.dart';
 
           class Header extends StatelessWidget {
@@ -250,12 +245,9 @@ steps:
 
             @override
             Widget build(BuildContext context) => Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    heading,
-                    style: const TextStyle(fontSize: 24),
-                  ),
-                );
+              padding: const EdgeInsets.all(8.0),
+              child: Text(heading, style: const TextStyle(fontSize: 24)),
+            );
           }
 
           class Paragraph extends StatelessWidget {
@@ -263,12 +255,9 @@ steps:
             final String content;
             @override
             Widget build(BuildContext context) => Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  child: Text(
-                    content,
-                    style: const TextStyle(fontSize: 18),
-                  ),
-                );
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              child: Text(content, style: const TextStyle(fontSize: 18)),
+            );
           }
 
           class IconAndDetail extends StatelessWidget {
@@ -278,18 +267,15 @@ steps:
 
             @override
             Widget build(BuildContext context) => Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    children: [
-                      Icon(icon),
-                      const SizedBox(width: 8),
-                      Text(
-                        detail,
-                        style: const TextStyle(fontSize: 18),
-                      )
-                    ],
-                  ),
-                );
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  Icon(icon),
+                  const SizedBox(width: 8),
+                  Text(detail, style: const TextStyle(fontSize: 18)),
+                ],
+              ),
+            );
           }
 
           class StyledButton extends StatelessWidget {
@@ -299,11 +285,12 @@ steps:
 
             @override
             Widget build(BuildContext context) => OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Colors.deepPurple)),
-                  onPressed: onPressed,
-                  child: child,
-                );
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: Colors.deepPurple),
+              ),
+              onPressed: onPressed,
+              child: child,
+            );
           }
       - name: Replace test/widget_test.dart
         path: gtk_flutter/test/widget_test.dart
@@ -1697,7 +1684,7 @@ steps:
         platforms: [ macos ]
         path: gtk_flutter
         flutter: build apk
-      - name: Build for macOS 
+      - name: Build for macOS
         platforms: [ macos ]
         path: gtk_flutter
         flutter: build macos --debug
@@ -1707,7 +1694,7 @@ steps:
           to: step_02
   - name: step_04
     steps:
-      - name: Remove generated code.
+      - name: Remove generated code
         rmdir: step_04
       - name: Update iOS podspec
         platforms: [ macos ]
@@ -1741,7 +1728,7 @@ steps:
               if (kIsWeb) {
                 return web;
               }
-              // ignore: missing_enum_constant_in_switch
+
               switch (defaultTargetPlatform) {
                 case TargetPlatform.android:
                   return android;
@@ -1749,11 +1736,11 @@ steps:
                   return ios;
                 case TargetPlatform.macOS:
                   return macos;
+                default:
+                  throw UnsupportedError(
+                    'DefaultFirebaseOptions are not supported for this platform.',
+                  );
               }
-
-              throw UnsupportedError(
-                'DefaultFirebaseOptions are not supported for this platform.',
-              );
             }
 
             static const FirebaseOptions web = FirebaseOptions(
@@ -1815,20 +1802,32 @@ steps:
       - name: Add cloud_firestore firebase_auth firebase_core provider firebase_ui_auth
         path: gtk_flutter
         flutter: pub add cloud_firestore firebase_auth firebase_core provider firebase_ui_auth
+      - name: Build for iOS
+        platforms: [ macos ]
+        path: gtk_flutter
+        flutter: build ios --debug --simulator
+      - name: Build for Android
+        platforms: [ macos ]
+        path: gtk_flutter
+        flutter: build apk
+      - name: Build for macOS
+        platforms: [ macos ]
+        path: gtk_flutter
+        flutter: build macos --debug
       - name: Copy step_04
         copydir:
           from: gtk_flutter
           to: step_04
   - name: step_05
     steps:
-      - name: Remove generated code.
+      - name: Remove generated code
         rmdir: step_05
       - name: Patch lib/main.dart
         path: gtk_flutter/lib/main.dart
         patch-u: |
           --- b/firebase-get-to-know-flutter/step_05/lib/main.dart
           +++ a/firebase-get-to-know-flutter/step_05/lib/main.dart
-          @@ -2,21 +2,105 @@
+          @@ -2,21 +2,107 @@
            // Use of this source code is governed by a BSD-style license that can be
            // found in the LICENSE file.
            
@@ -1845,10 +1844,12 @@ steps:
           -  runApp(const App());
           +  WidgetsFlutterBinding.ensureInitialized();
           +
-          +  runApp(ChangeNotifierProvider(
-          +    create: (context) => ApplicationState(),
-          +    builder: ((context, child) => const App()),
-          +  ));
+          +  runApp(
+          +    ChangeNotifierProvider(
+          +      create: (context) => ApplicationState(),
+          +      builder: ((context, child) => const App()),
+          +    ),
+          +  );
            }
            
           +final _router = GoRouter(
@@ -1865,32 +1866,32 @@ steps:
           +                ForgotPasswordAction(((context, email) {
           +                  final uri = Uri(
           +                    path: '/sign-in/forgot-password',
-          +                    queryParameters: <String, String?>{
-          +                      'email': email,
-          +                    },
+          +                    queryParameters: <String, String?>{'email': email},
           +                  );
           +                  context.push(uri.toString());
           +                })),
           +                AuthStateChangeAction(((context, state) {
-          +                  if (state is SignedIn || state is UserCreated) {
-          +                    var user = (state is SignedIn)
-          +                        ? state.user
-          +                        : (state as UserCreated).credential.user;
-          +                    if (user == null) {
-          +                      return;
-          +                    }
-          +                    if (state is UserCreated) {
-          +                      user.updateDisplayName(user.email!.split('@')[0]);
-          +                    }
-          +                    if (!user.emailVerified) {
-          +                      user.sendEmailVerification();
-          +                      const snackBar = SnackBar(
-          +                          content: Text(
-          +                              'Please check your email to verify your email address'));
-          +                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-          +                    }
-          +                    context.pushReplacement('/');
+          +                  final user = switch (state) {
+          +                    SignedIn state => state.user,
+          +                    UserCreated state => state.credential.user,
+          +                    _ => null,
+          +                  };
+          +                  if (user == null) {
+          +                    return;
           +                  }
+          +                  if (state is UserCreated) {
+          +                    user.updateDisplayName(user.email!.split('@')[0]);
+          +                  }
+          +                  if (!user.emailVerified) {
+          +                    user.sendEmailVerification();
+          +                    const snackBar = SnackBar(
+          +                      content: Text(
+          +                        'Please check your email to verify your email address',
+          +                      ),
+          +                    );
+          +                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+          +                  }
+          +                  context.pushReplacement('/');
           +                })),
           +              ],
           +            );
@@ -1899,7 +1900,7 @@ steps:
           +            GoRoute(
           +              path: 'forgot-password',
           +              builder: (context, state) {
-          +                final arguments = state.queryParams;
+          +                final arguments = state.uri.queryParameters;
           +                return ForgotPasswordScreen(
           +                  email: arguments['email'],
           +                  headerMaxExtent: 200,
@@ -1935,10 +1936,10 @@ steps:
           +    return MaterialApp.router(
                  title: 'Firebase Meetup',
                  theme: ThemeData(
-                   buttonTheme: Theme.of(context).buttonTheme.copyWith(
-          @@ -29,7 +113,7 @@ class App extends StatelessWidget {
+                   buttonTheme: Theme.of(
+          @@ -26,7 +112,7 @@ class App extends StatelessWidget {
+                   textTheme: GoogleFonts.robotoTextTheme(Theme.of(context).textTheme),
                    visualDensity: VisualDensity.adaptivePlatformDensity,
-                   useMaterial3: true,
                  ),
           -      home: const HomePage(),
           +      routerConfig: _router,
@@ -1977,31 +1978,30 @@ steps:
           // Copyright 2022 The Flutter Authors. All rights reserved.
           // Use of this source code is governed by a BSD-style license that can be
           // found in the LICENSE file.
-          
+
           import 'package:firebase_auth/firebase_auth.dart'
               hide EmailAuthProvider, PhoneAuthProvider;
           import 'package:firebase_core/firebase_core.dart';
           import 'package:firebase_ui_auth/firebase_ui_auth.dart';
           import 'package:flutter/material.dart';
-          
+
           import 'firebase_options.dart';
-          
+
           class ApplicationState extends ChangeNotifier {
             ApplicationState() {
               init();
             }
-          
+
             bool _loggedIn = false;
             bool get loggedIn => _loggedIn;
-          
+
             Future<void> init() async {
               await Firebase.initializeApp(
-                  options: DefaultFirebaseOptions.currentPlatform);
-          
-              FirebaseUIAuth.configureProviders([
-                EmailAuthProvider(),
-              ]);
-          
+                options: DefaultFirebaseOptions.currentPlatform,
+              );
+
+              FirebaseUIAuth.configureProviders([EmailAuthProvider()]);
+
               FirebaseAuth.instance.userChanges().listen((user) {
                 if (user != null) {
                   _loggedIn = true;
@@ -2031,58 +2031,29 @@ steps:
            import 'src/widgets.dart';
            
            class HomePage extends StatelessWidget {
-          @@ -21,6 +26,13 @@ class HomePage extends StatelessWidget {
+          @@ -19,6 +24,15 @@ class HomePage extends StatelessWidget {
                      const SizedBox(height: 8),
                      const IconAndDetail(Icons.calendar_today, 'October 30'),
                      const IconAndDetail(Icons.location_city, 'San Francisco'),
           +          Consumer<ApplicationState>(
-          +            builder: (context, appState, _) => AuthFunc(
-          +                loggedIn: appState.loggedIn,
-          +                signOut: () {
-          +                  FirebaseAuth.instance.signOut();
-          +                }),
+          +            builder:
+          +                (context, appState, _) => AuthFunc(
+          +                  loggedIn: appState.loggedIn,
+          +                  signOut: () {
+          +                    FirebaseAuth.instance.signOut();
+          +                  },
+          +                ),
           +          ),
                      const Divider(
                        height: 8,
                        thickness: 1,
-      - name: Patch lib/src/authentication.dart
-        path: gtk_flutter/lib/src/authentication.dart
-        patch-u: |
-          --- b/firebase-get-to-know-flutter/step_05/lib/src/authentication.dart
-          +++ a/firebase-get-to-know-flutter/step_05/lib/src/authentication.dart
-          @@ -30,16 +30,15 @@ class AuthFunc extends StatelessWidget {
-                         child: !loggedIn ? const Text('RSVP') : const Text('Logout')),
-                   ),
-                   Visibility(
-          -          visible: loggedIn,
-          -          child: Padding(
-          -            padding: const EdgeInsets.only(left: 24, bottom: 8),
-          -            child: StyledButton(
-          -                onPressed: () {
-          -                  context.push('/profile');
-          -                },
-          -                child: const Text('Profile')),
-          -          ),
-          -        )
-          +            visible: loggedIn,
-          +            child: Padding(
-          +              padding: const EdgeInsets.only(left: 24, bottom: 8),
-          +              child: StyledButton(
-          +                  onPressed: () {
-          +                    context.push('/profile');
-          +                  },
-          +                  child: const Text('Profile')),
-          +            ))
-                 ],
-               );
-             }
       - name: Copy step_05
         copydir:
           from: gtk_flutter
           to: step_05
   - name: step_06
     steps:
-      - name: Remove generated code.
+      - name: Remove generated code
         rmdir: step_06
       - name: Patch lib/app_state.dart
         path: gtk_flutter/lib/app_state.dart
@@ -2105,7 +2076,7 @@ steps:
              bool get loggedIn => _loggedIn;
            
              Future<void> init() async {
-          @@ -35,4 +37,19 @@ class ApplicationState extends ChangeNotifier {
+          @@ -34,4 +36,19 @@ class ApplicationState extends ChangeNotifier {
                  notifyListeners();
                });
              }
@@ -2118,11 +2089,11 @@ steps:
           +    return FirebaseFirestore.instance
           +        .collection('guestbook')
           +        .add(<String, dynamic>{
-          +      'text': message,
-          +      'timestamp': DateTime.now().millisecondsSinceEpoch,
-          +      'name': FirebaseAuth.instance.currentUser!.displayName,
-          +      'userId': FirebaseAuth.instance.currentUser!.uid,
-          +    });
+          +          'text': message,
+          +          'timestamp': DateTime.now().millisecondsSinceEpoch,
+          +          'name': FirebaseAuth.instance.currentUser!.displayName,
+          +          'userId': FirebaseAuth.instance.currentUser!.uid,
+          +        });
           +  }
            }
       - name: Add lib/guest_book.dart
@@ -2131,26 +2102,26 @@ steps:
           // Copyright 2022 The Flutter Authors. All rights reserved.
           // Use of this source code is governed by a BSD-style license that can be
           // found in the LICENSE file.
-          
+
           import 'dart:async';
-          
+
           import 'package:flutter/material.dart';
-          
+
           import 'src/widgets.dart';
-          
+
           class GuestBook extends StatefulWidget {
             const GuestBook({required this.addMessage, super.key});
-          
+
             final FutureOr<void> Function(String message) addMessage;
-          
+
             @override
             State<GuestBook> createState() => _GuestBookState();
           }
-          
+
           class _GuestBookState extends State<GuestBook> {
             final _formKey = GlobalKey<FormState>(debugLabel: '_GuestBookState');
             final _controller = TextEditingController();
-          
+
             @override
             Widget build(BuildContext context) {
               return Padding(
@@ -2162,9 +2133,7 @@ steps:
                       Expanded(
                         child: TextFormField(
                           controller: _controller,
-                          decoration: const InputDecoration(
-                            hintText: 'Leave a message',
-                          ),
+                          decoration: const InputDecoration(hintText: 'Leave a message'),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Enter your message to continue';
@@ -2181,18 +2150,20 @@ steps:
                             _controller.clear();
                           }
                         },
-                        child: Row(
-                          children: const [
-                            Icon(Icons.send),
-                            SizedBox(width: 4),
-                            Text('SEND'),
-                          ],
+                        child: const Row(
+                          children: [Icon(Icons.send), SizedBox(width: 4), Text('SEND')],
                         ),
                       ),
                     ],
                   ),
                 ),
               );
+            }
+
+            @override
+            void dispose() {
+              _controller.dispose();
+              super.dispose();
             }
           }
       - name: Patch lib/home_page.dart
@@ -2208,23 +2179,25 @@ steps:
            import 'src/authentication.dart';
            import 'src/widgets.dart';
            
-          @@ -44,6 +45,20 @@ class HomePage extends StatelessWidget {
+          @@ -44,6 +45,22 @@ class HomePage extends StatelessWidget {
                      const Paragraph(
                        'Join us for a day full of Firebase Workshops and Pizza!',
                      ),
           +          Consumer<ApplicationState>(
-          +            builder: (context, appState, _) => Column(
-          +              crossAxisAlignment: CrossAxisAlignment.start,
-          +              children: [
-          +                if (appState.loggedIn) ...[
-          +                  const Header('Discussion'),
-          +                  GuestBook(
-          +                    addMessage: (message) =>
-          +                        appState.addMessageToGuestBook(message),
-          +                  ),
-          +                ],
-          +              ],
-          +            ),
+          +            builder:
+          +                (context, appState, _) => Column(
+          +                  crossAxisAlignment: CrossAxisAlignment.start,
+          +                  children: [
+          +                    if (appState.loggedIn) ...[
+          +                      const Header('Discussion'),
+          +                      GuestBook(
+          +                        addMessage:
+          +                            (message) =>
+          +                                appState.addMessageToGuestBook(message),
+          +                      ),
+          +                    ],
+          +                  ],
+          +                ),
           +          ),
                    ],
                  ),
@@ -2235,7 +2208,7 @@ steps:
           to: step_06
   - name: step_07
     steps:
-      - name: Remove generated code.
+      - name: Remove generated code
         rmdir: step_07
       - name: Patch lib/app_state.dart
         path: gtk_flutter/lib/app_state.dart
@@ -2272,8 +2245,8 @@ steps:
           +
              Future<void> init() async {
                await Firebase.initializeApp(
-                   options: DefaultFirebaseOptions.currentPlatform);
-          @@ -31,8 +37,26 @@ class ApplicationState extends ChangeNotifier {
+                 options: DefaultFirebaseOptions.currentPlatform,
+          @@ -30,8 +36,26 @@ class ApplicationState extends ChangeNotifier {
                FirebaseAuth.instance.userChanges().listen((user) {
                  if (user != null) {
                    _loggedIn = true;
@@ -2282,17 +2255,17 @@ steps:
           +            .orderBy('timestamp', descending: true)
           +            .snapshots()
           +            .listen((snapshot) {
-          +          _guestBookMessages = [];
-          +          for (final document in snapshot.docs) {
-          +            _guestBookMessages.add(
-          +              GuestBookMessage(
-          +                name: document.data()['name'] as String,
-          +                message: document.data()['text'] as String,
-          +              ),
-          +            );
-          +          }
-          +          notifyListeners();
-          +        });
+          +              _guestBookMessages = [];
+          +              for (final document in snapshot.docs) {
+          +                _guestBookMessages.add(
+          +                  GuestBookMessage(
+          +                    name: document.data()['name'] as String,
+          +                    message: document.data()['text'] as String,
+          +                  ),
+          +                );
+          +              }
+          +              notifyListeners();
+          +            });
                  } else {
                    _loggedIn = false;
           +        _guestBookMessages = [];
@@ -2338,7 +2311,7 @@ steps:
            
              @override
              State<GuestBook> createState() => _GuestBookState();
-          @@ -23,45 +29,54 @@ class _GuestBookState extends State<GuestBook> {
+          @@ -23,39 +29,54 @@ class _GuestBookState extends State<GuestBook> {
            
              @override
              Widget build(BuildContext context) {
@@ -2351,8 +2324,14 @@ steps:
           -            Expanded(
           -              child: TextFormField(
           -                controller: _controller,
-          -                decoration: const InputDecoration(
-          -                  hintText: 'Leave a message',
+          -                decoration: const InputDecoration(hintText: 'Leave a message'),
+          -                validator: (value) {
+          -                  if (value == null || value.isEmpty) {
+          -                    return 'Enter your message to continue';
+          -                  }
+          -                  return null;
+          -                },
+          -              ),
           +    return Column(
           +      crossAxisAlignment: CrossAxisAlignment.start,
           +      children: [
@@ -2375,30 +2354,7 @@ steps:
           +                      return null;
           +                    },
           +                  ),
-                           ),
-          -                validator: (value) {
-          -                  if (value == null || value.isEmpty) {
-          -                    return 'Enter your message to continue';
-          -                  }
-          -                  return null;
-          -                },
-          -              ),
-          -            ),
-          -            const SizedBox(width: 8),
-          -            StyledButton(
-          -              onPressed: () async {
-          -                if (_formKey.currentState!.validate()) {
-          -                  await widget.addMessage(_controller.text);
-          -                  _controller.clear();
-          -                }
-          -              },
-          -              child: Row(
-          -                children: const [
-          -                  Icon(Icons.send),
-          -                  SizedBox(width: 4),
-          -                  Text('SEND'),
-          -                ],
-          -              ),
+          +                ),
           +                const SizedBox(width: 8),
           +                StyledButton(
           +                  onPressed: () async {
@@ -2407,8 +2363,8 @@ steps:
           +                      _controller.clear();
           +                    }
           +                  },
-          +                  child: Row(
-          +                    children: const [
+          +                  child: const Row(
+          +                    children: [
           +                      Icon(Icons.send),
           +                      SizedBox(width: 4),
           +                      Text('SEND'),
@@ -2417,6 +2373,18 @@ steps:
           +                ),
           +              ],
                        ),
+          -            const SizedBox(width: 8),
+          -            StyledButton(
+          -              onPressed: () async {
+          -                if (_formKey.currentState!.validate()) {
+          -                  await widget.addMessage(_controller.text);
+          -                  _controller.clear();
+          -                }
+          -              },
+          -              child: const Row(
+          -                children: [Icon(Icons.send), SizedBox(width: 4), Text('SEND')],
+          -              ),
+          -            ),
           -          ],
           +          ),
                    ),
@@ -2428,39 +2396,43 @@ steps:
           +      ],
                );
              }
-           }
       - name: Patch lib/home_page.dart
         path: gtk_flutter/lib/home_page.dart
         patch-u: |
           --- b/firebase-get-to-know-flutter/step_07/lib/home_page.dart
           +++ a/firebase-get-to-know-flutter/step_07/lib/home_page.dart
-          @@ -54,6 +54,7 @@ class HomePage extends StatelessWidget {
-                             GuestBook(
-                               addMessage: (message) =>
-                                   appState.addMessageToGuestBook(message),
-          +                    messages: appState.guestBookMessages,
-                             ),
-                           ],
-                         ],
+          @@ -56,6 +56,7 @@ class HomePage extends StatelessWidget {
+                                   addMessage:
+                                       (message) =>
+                                           appState.addMessageToGuestBook(message),
+          +                        messages: appState.guestBookMessages,
+                                 ),
+                               ],
+                             ],
       - name: Copy step_07
         copydir:
           from: gtk_flutter
           to: step_07
   - name: step_09
     steps:
-      - name: Remove generated code.
+      - name: Remove generated code
         rmdir: step_09
       - name: Patch lib/src/authentication.dart
         path: gtk_flutter/lib/src/authentication.dart
         patch-u: |
           --- b/firebase-get-to-know-flutter/step_09/lib/src/authentication.dart
           +++ a/firebase-get-to-know-flutter/step_09/lib/src/authentication.dart
-          @@ -12,10 +12,12 @@ class AuthFunc extends StatelessWidget {
-               super.key,
-               required this.loggedIn,
-               required this.signOut,
+          @@ -8,10 +8,16 @@ import 'package:go_router/go_router.dart';
+           import 'widgets.dart';
+           
+           class AuthFunc extends StatelessWidget {
+          -  const AuthFunc({super.key, required this.loggedIn, required this.signOut});
+          +  const AuthFunc({
+          +    super.key,
+          +    required this.loggedIn,
+          +    required this.signOut,
           +    this.enableFreeSwag = false,
-             });
+          +  });
            
              final bool loggedIn;
              final void Function() signOut;
@@ -2468,22 +2440,22 @@ steps:
            
              @override
              Widget build(BuildContext context) {
-          @@ -38,7 +40,17 @@ class AuthFunc extends StatelessWidget {
-                               context.push('/profile');
-                             },
-                             child: const Text('Profile')),
-          -            ))
-          +            )),
+          @@ -38,6 +44,18 @@ class AuthFunc extends StatelessWidget {
+                       ),
+                     ),
+                   ),
           +        Visibility(
-          +            visible: enableFreeSwag,
-          +            child: Padding(
-          +              padding: const EdgeInsets.only(left: 24, bottom: 8),
-          +              child: StyledButton(
-          +                  onPressed: () {
-          +                    throw Exception('free swag unimplemented');
-          +                  },
-          +                  child: const Text('Free swag!')),
-          +            )),
+          +          visible: enableFreeSwag,
+          +          child: Padding(
+          +            padding: const EdgeInsets.only(left: 24, bottom: 8),
+          +            child: StyledButton(
+          +              onPressed: () {
+          +                throw Exception('free swag unimplemented');
+          +              },
+          +              child: const Text('Free swag!'),
+          +            ),
+          +          ),
+          +        ),
                  ],
                );
              }
@@ -2561,19 +2533,19 @@ steps:
           +
              Future<void> init() async {
                await Firebase.initializeApp(
-                   options: DefaultFirebaseOptions.currentPlatform);
-          @@ -34,9 +85,19 @@ class ApplicationState extends ChangeNotifier {
-                 EmailAuthProvider(),
-               ]);
+                 options: DefaultFirebaseOptions.currentPlatform,
+          @@ -33,9 +84,19 @@ class ApplicationState extends ChangeNotifier {
+           
+               FirebaseUIAuth.configureProviders([EmailAuthProvider()]);
            
           +    FirebaseFirestore.instance
           +        .collection('attendees')
           +        .where('attending', isEqualTo: true)
           +        .snapshots()
           +        .listen((snapshot) {
-          +      _attendees = snapshot.docs.length;
-          +      notifyListeners();
-          +    });
+          +          _attendees = snapshot.docs.length;
+          +          notifyListeners();
+          +        });
           +
                FirebaseAuth.instance.userChanges().listen((user) {
                  if (user != null) {
@@ -2582,26 +2554,26 @@ steps:
                    _guestBookSubscription = FirebaseFirestore.instance
                        .collection('guestbook')
                        .orderBy('timestamp', descending: true)
-          @@ -53,15 +114,43 @@ class ApplicationState extends ChangeNotifier {
-                     }
-                     notifyListeners();
-                   });
+          @@ -52,15 +113,43 @@ class ApplicationState extends ChangeNotifier {
+                         }
+                         notifyListeners();
+                       });
           +        _attendingSubscription = FirebaseFirestore.instance
           +            .collection('attendees')
           +            .doc(user.uid)
           +            .snapshots()
           +            .listen((snapshot) {
-          +          if (snapshot.data() != null) {
-          +            if (snapshot.data()!['attending'] as bool) {
-          +              _attending = Attending.yes;
-          +            } else {
-          +              _attending = Attending.no;
-          +            }
-          +          } else {
-          +            _attending = Attending.unknown;
-          +          }
-          +          notifyListeners();
-          +        });
+          +              if (snapshot.data() != null) {
+          +                if (snapshot.data()!['attending'] as bool) {
+          +                  _attending = Attending.yes;
+          +                } else {
+          +                  _attending = Attending.no;
+          +                }
+          +              } else {
+          +                _attending = Attending.unknown;
+          +              }
+          +              notifyListeners();
+          +            });
                  } else {
                    _loggedIn = false;
           +        _emailVerified = false;
@@ -2639,66 +2611,61 @@ steps:
            
            class HomePage extends StatelessWidget {
              const HomePage({super.key});
-          @@ -25,14 +26,19 @@ class HomePage extends StatelessWidget {
+          @@ -23,7 +24,11 @@ class HomePage extends StatelessWidget {
                    children: <Widget>[
                      Image.asset('assets/codelab.png'),
                      const SizedBox(height: 8),
           -          const IconAndDetail(Icons.calendar_today, 'October 30'),
           +          Consumer<ApplicationState>(
-          +            builder: (context, appState, _) =>
-          +                IconAndDetail(Icons.calendar_today, appState.eventDate),
+          +            builder:
+          +                (context, appState, _) =>
+          +                    IconAndDetail(Icons.calendar_today, appState.eventDate),
           +          ),
                      const IconAndDetail(Icons.location_city, 'San Francisco'),
                      Consumer<ApplicationState>(
-                       builder: (context, appState, _) => AuthFunc(
-          -                loggedIn: appState.loggedIn,
-          -                signOut: () {
-          -                  FirebaseAuth.instance.signOut();
-          -                }),
-          +              loggedIn: appState.loggedIn,
-          +              signOut: () {
-          +                FirebaseAuth.instance.signOut();
-          +              },
-          +              enableFreeSwag: appState.enableFreeSwag,
-          +            ),
+                       builder:
+          @@ -32,6 +37,7 @@ class HomePage extends StatelessWidget {
+                             signOut: () {
+                               FirebaseAuth.instance.signOut();
+                             },
+          +                  enableFreeSwag: appState.enableFreeSwag,
+                           ),
                      ),
                      const Divider(
-                       height: 8,
-          @@ -42,14 +48,26 @@ class HomePage extends StatelessWidget {
+          @@ -42,15 +48,25 @@ class HomePage extends StatelessWidget {
                        color: Colors.grey,
                      ),
                      const Header("What we'll be doing"),
           -          const Paragraph(
           -            'Join us for a day full of Firebase Workshops and Pizza!',
           +          Consumer<ApplicationState>(
-          +            builder: (context, appState, _) => Paragraph(
-          +              appState.callToAction,
-          +            ),
+          +            builder: (context, appState, _) => Paragraph(appState.callToAction),
                      ),
                      Consumer<ApplicationState>(
-                       builder: (context, appState, _) => Column(
-                         crossAxisAlignment: CrossAxisAlignment.start,
-                         children: [
-          +                if (appState.attendees >= 2)
-          +                  Paragraph('${appState.attendees} people going')
-          +                else if (appState.attendees == 1)
-          +                  const Paragraph('1 person going')
-          +                else
-          +                  const Paragraph('No one going'),
-                           if (appState.loggedIn) ...[
-          +                  YesNoSelection(
-          +                    state: appState.attending,
-          +                    onSelection: (attending) => appState.attending = attending,
-          +                  ),
-                             const Header('Discussion'),
-                             GuestBook(
-                               addMessage: (message) =>
+                       builder:
+                           (context, appState, _) => Column(
+                             crossAxisAlignment: CrossAxisAlignment.start,
+                             children: [
+          +                    switch (appState.attendees) {
+          +                      1 => const Paragraph('1 person going'),
+          +                      >= 2 => Paragraph('${appState.attendees} people going'),
+          +                      _ => const Paragraph('No one going'),
+          +                    },
+                               if (appState.loggedIn) ...[
+          +                      YesNoSelection(
+          +                        state: appState.attending,
+          +                        onSelection:
+          +                            (attending) => appState.attending = attending,
+          +                      ),
+                                 const Header('Discussion'),
+                                 GuestBook(
+                                   addMessage:
       - name: Patch lib/main.dart
         path: gtk_flutter/lib/main.dart
         patch-u: |
           --- b/firebase-get-to-know-flutter/step_09/lib/main.dart
           +++ a/firebase-get-to-know-flutter/step_09/lib/main.dart
-          @@ -80,13 +80,28 @@ final _router = GoRouter(
+          @@ -82,13 +82,28 @@ final _router = GoRouter(
                    GoRoute(
                      path: 'profile',
                      builder: (context, state) {
@@ -2710,52 +2677,52 @@ steps:
           -                }),
           -              ],
           +            return Consumer<ApplicationState>(
-          +              builder: (context, appState, _) => ProfileScreen(
-          +                key: ValueKey(appState.emailVerified),
-          +                providers: const [],
-          +                actions: [
-          +                  SignedOutAction(
-          +                    ((context) {
-          +                      context.pushReplacement('/');
-          +                    }),
+          +              builder:
+          +                  (context, appState, _) => ProfileScreen(
+          +                    key: ValueKey(appState.emailVerified),
+          +                    providers: const [],
+          +                    actions: [
+          +                      SignedOutAction(((context) {
+          +                        context.pushReplacement('/');
+          +                      })),
+          +                    ],
+          +                    children: [
+          +                      Visibility(
+          +                        visible: !appState.emailVerified,
+          +                        child: OutlinedButton(
+          +                          child: const Text('Recheck Verification State'),
+          +                          onPressed: () {
+          +                            appState.refreshLoggedInUser();
+          +                          },
+          +                        ),
+          +                      ),
+          +                    ],
           +                  ),
-          +                ],
-          +                children: [
-          +                  Visibility(
-          +                      visible: !appState.emailVerified,
-          +                      child: OutlinedButton(
-          +                        child: const Text('Recheck Verification State'),
-          +                        onPressed: () {
-          +                          appState.refreshLoggedInUser();
-          +                        },
-          +                      ))
-          +                ],
-          +              ),
                        );
                      },
                    ),
-      - name: Add
+      - name: Add lib/yes_no_selection.dart
         path: gtk_flutter/lib/yes_no_selection.dart
         replace-contents: |
           // Copyright 2022 The Flutter Authors. All rights reserved.
           // Use of this source code is governed by a BSD-style license that can be
           // found in the LICENSE file.
-          
+
           import 'package:flutter/material.dart';
-          
+
           import 'app_state.dart';
           import 'src/widgets.dart';
-          
+
           class YesNoSelection extends StatelessWidget {
             const YesNoSelection({
               super.key,
               required this.state,
               required this.onSelection,
             });
-          
+
             final Attending state;
             final void Function(Attending selection) onSelection;
-          
+
             @override
             Widget build(BuildContext context) {
               switch (state) {
@@ -2816,10 +2783,6 @@ steps:
       - name: Flutter clean
         path: gtk_flutter
         flutter: clean
-      - name: Build for iOS
-        platforms: [ macos ]
-        path: gtk_flutter
-        flutter: build ios --debug --simulator
       - name: Build for Android
         platforms: [ macos ]
         path: gtk_flutter
@@ -2828,6 +2791,10 @@ steps:
         platforms: [ macos ]
         path: gtk_flutter
         flutter: build macos --debug
+      - name: Build for iOS
+        platforms: [ macos ]
+        path: gtk_flutter
+        flutter: build ios --debug --simulator
       - name: Copy step_09
         copydir:
           from: gtk_flutter
