@@ -8,30 +8,27 @@ source "$DIR/flutter_ci_script_shared.sh"
 declare -a CODELABS=(
   "adaptive_app"
   "animated-responsive-layout"
+  "animations"
+  "audio_soloud"
   "boring_to_beautiful"
-  "cookbook"
-  # TODO(DomesticMouse): Use 'const' with the constructor to improve performance.
-  # "cupertino_store"
-  "dart3"
-  # TODO(DomesticMouse): Use 'const' with the constructor to improve performance.
-  # "dartpad_codelabs"
+  "brick_breaker"
+  "dart-patterns-and-records"
   "deeplink_cookbook"
   "ffigen_codelab"
-  # TODO(DomesticMouse): version solving failed.
-  # "firebase-auth-flutterfire-ui"
+  "firebase-auth-flutterfire-ui"
   "firebase-emulator-suite"
-  # TODO(DomesticMouse): version solving failed.
-  # "firebase-get-to-know-flutter"
-  "flame-building-doodle-dash"
+  "firebase-get-to-know-flutter"
+  "forge2d_game"
+  "generate_crossword"
   "github-client"
   "google-maps-in-flutter"
   "haiku_generator"
-  # TODO(DomesticMouse): Use 'const' with the constructor to improve performance.
-  # "in_app_purchases"
+  "homescreen_codelab"
+  "in_app_purchases"
+  # TODO(domesticmouse): Add after beta is above Dart 3.8.0-0
+  # "intro_flutter_gpu"
   "namer"
   "next-gen-ui"
-  "plugin_codelab"
-  "star_counter"
   "testing_codelab"
   "tfagents-flutter"
   "tfrs-flutter"
@@ -39,11 +36,6 @@ declare -a CODELABS=(
   "tooling"
   "webview_flutter"
   )
-
-# Plugin codelab is failing on ubuntu-latest in CI.
-if [[ "$OSTYPE" != "linux-gnu"* ]]; then
-  CODELABS+=("plugin_codelab")
-fi
 
 ci_codelabs "beta" "${CODELABS[@]}"
 

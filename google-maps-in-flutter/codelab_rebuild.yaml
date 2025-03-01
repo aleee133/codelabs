@@ -9,6 +9,9 @@ steps:
       - name: Strip DEVELOPMENT_TEAM
         strip-lines-containing: DEVELOPMENT_TEAM =
         path: google_maps_in_flutter/ios/Runner.xcodeproj/project.pbxproj
+      - name: Update dependencies
+        path: google_maps_in_flutter
+        flutter: pub upgrade --major-versions
       - name: Configure analysis_options.yaml
         path: google_maps_in_flutter/analysis_options.yaml
         replace-contents: |
@@ -20,10 +23,10 @@ steps:
       - name: dart fix
         dart: fix --apply
         path: google_maps_in_flutter
-      - name: Add google_maps_flutter google_maps_flutter_web
+      - name: Add google_maps_flutter
         path: google_maps_in_flutter
-        flutter: pub add google_maps_flutter google_maps_flutter_web
-      - name: Remove the README.md.
+        flutter: pub add google_maps_flutter
+      - name: Remove the README.md
         rm: google_maps_in_flutter/README.md
       - name: VSCode config
         path: google_maps_in_flutter
@@ -44,36 +47,52 @@ steps:
                   }
               ]
           }
-      - name: Patch android/app/build.gradle
-        path: google_maps_in_flutter/android/app/build.gradle
+      - name: Patch android/app/build.gradle.kts
+        path: google_maps_in_flutter/android/app/build.gradle.kts
         patch-u: |
           --- b/google-maps-in-flutter/step_3/android/app/build.gradle
           +++ a/google-maps-in-flutter/step_3/android/app/build.gradle
-          @@ -45,9 +45,7 @@ android {
+          @@ -22,9 +22,9 @@ android {
                defaultConfig {
                    // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-                   applicationId "com.example.google_maps_in_flutter"
+                   applicationId = "com.example.google_maps_in_flutter"
           -        // You can update the following values to match your application needs.
-          -        // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
-          -        minSdkVersion flutter.minSdkVersion
-          +        minSdkVersion 20
-                   targetSdkVersion flutter.targetSdkVersion
-                   versionCode flutterVersionCode.toInteger()
-                   versionName flutterVersionName
+          -        // For more information, see: https://flutter.dev/to/review-gradle-config.
+          -        minSdk = flutter.minSdkVersion
+          +        // Minimum Android version for Google Maps SDK
+          +        // https://developers.google.com/maps/flutter-package/config#android
+          +        minSdk = 21
+                   targetSdk = flutter.targetSdkVersion
+                   versionCode = flutter.versionCode
+                   versionName = flutter.versionName
       - name: Patch ios/Podfile
         platforms: [ macos ]
         path: google_maps_in_flutter/ios/Podfile
         patch-u: |
           --- b/google-maps-in-flutter/step_3/ios/Podfile
           +++ a/google-maps-in-flutter/step_3/ios/Podfile
-          @@ -1,5 +1,5 @@
+          @@ -1,5 +1,6 @@
           -# Uncomment this line to define a global platform for your project
-          -# platform :ios, '11.0'
-          +#  Google Maps SDK requires platform version 13
-          +platform :ios, '13.0'
+          -# platform :ios, '12.0'
+          +# Google Maps SDK requires platform version 14
+          +# https://developers.google.com/maps/flutter-package/config#ios
+          +platform :ios, '14.0'
            
            # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
            ENV['COCOAPODS_DISABLE_STATS'] = 'true'
+      - name: Patch ios/Flutter/AppFrameworkInfo.plist
+        path: google_maps_in_flutter/ios/Flutter/AppFrameworkInfo.plist
+        patch-u: |
+          --- a/google-maps-in-flutter/step_3/ios/Flutter/AppFrameworkInfo.plist
+          +++ b/google-maps-in-flutter/step_3/ios/Flutter/AppFrameworkInfo.plist
+          @@ -21,6 +21,6 @@
+             <key>CFBundleVersion</key>
+             <string>1.0</string>
+             <key>MinimumOSVersion</key>
+          -  <string>12.0</string>
+          +  <string>14.0</string>
+           </dict>
+           </plist>
       - name: Patch lib/main.dart
         path: google_maps_in_flutter/lib/main.dart
         patch-u: |
@@ -127,6 +146,9 @@ steps:
       - name: flutter clean
         path: google_maps_in_flutter
         flutter: clean
+      - name: flutter pub upgrade
+        path: google_maps_in_flutter
+        flutter: pub upgrade
       - name: build Android
         platforms: [ macos ]
         path: google_maps_in_flutter
@@ -134,7 +156,7 @@ steps:
       - name: build iOS
         platforms: [ macos ]
         path: google_maps_in_flutter
-        flutter: build ios
+        flutter: build ios --simulator
       - name: build web
         path: google_maps_in_flutter
         flutter: build web
@@ -151,7 +173,7 @@ steps:
         patch-u: |
           --- b/google-maps-in-flutter/step_4/android/app/src/main/AndroidManifest.xml
           +++ a/google-maps-in-flutter/step_4/android/app/src/main/AndroidManifest.xml
-          @@ -4,6 +4,11 @@
+          @@ -3,6 +3,11 @@
                    android:label="google_maps_in_flutter"
                    android:name="${applicationName}"
                    android:icon="@mipmap/ic_launcher">
@@ -169,13 +191,13 @@ steps:
           --- b/google-maps-in-flutter/step_4/ios/Runner/AppDelegate.swift
           +++ a/google-maps-in-flutter/step_4/ios/Runner/AppDelegate.swift
           @@ -1,5 +1,6 @@
-           import UIKit
            import Flutter
+           import UIKit
           +import GoogleMaps
            
-           @UIApplicationMain
+           @main
            @objc class AppDelegate: FlutterAppDelegate {
-          @@ -8,6 +9,10 @@ import Flutter
+          @@ -8,6 +9,10 @@ import UIKit
                didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
              ) -> Bool {
                GeneratedPluginRegistrant.register(with: self)
@@ -200,6 +222,7 @@ steps:
           +
              <title>google_maps_in_flutter</title>
              <link rel="manifest" href="manifest.json">
+           </head>
       - name: Replace lib/main.dart
         path: google_maps_in_flutter/lib/main.dart
         replace-contents: |
@@ -222,7 +245,9 @@ steps:
           import 'package:flutter/material.dart';
           import 'package:google_maps_flutter/google_maps_flutter.dart';
           
-          void main() => runApp(const MyApp());
+          void main() {
+            runApp(const MyApp());
+          }
           
           class MyApp extends StatefulWidget {
             const MyApp({super.key});
@@ -243,21 +268,12 @@ steps:
             @override
             Widget build(BuildContext context) {
               return MaterialApp(
-                theme: ThemeData(
-                  useMaterial3: true,
-                  colorSchemeSeed: Colors.green[700],
-                ),
+                theme: ThemeData(colorSchemeSeed: Colors.green[700]),
                 home: Scaffold(
-                  appBar: AppBar(
-                    title: const Text('Maps Sample App'),
-                    elevation: 2,
-                  ),
+                  appBar: AppBar(title: const Text('Maps Sample App'), elevation: 2),
                   body: GoogleMap(
                     onMapCreated: _onMapCreated,
-                    initialCameraPosition: CameraPosition(
-                      target: _center,
-                      zoom: 11.0,
-                    ),
+                    initialCameraPosition: CameraPosition(target: _center, zoom: 11.0),
                   ),
                 ),
               );
@@ -300,12 +316,9 @@ steps:
     steps:
       - name: Remove generated code
         rmdir: step_5
-      - name: Add http json_annotation json_serializable
+      - name: Add http json_annotation json_serializable build_runner
         path: google_maps_in_flutter
-        flutter: pub add http json_annotation json_serializable
-      - name: Add build_runner
-        path: google_maps_in_flutter
-        flutter: pub add --dev build_runner
+        flutter: pub add http json_annotation json_serializable dev:build_runner
       - name: Mkdir assets
         path: google_maps_in_flutter
         mkdir: assets
@@ -1234,30 +1247,27 @@ steps:
            * See the License for the specific language governing permissions and
            * limitations under the License.
            */
-
+          
           import 'dart:convert';
-
+          
           import 'package:flutter/foundation.dart';
           import 'package:flutter/services.dart' show rootBundle;
           import 'package:http/http.dart' as http;
           import 'package:json_annotation/json_annotation.dart';
-
+          
           part 'locations.g.dart';
-
+          
           @JsonSerializable()
           class LatLng {
-            LatLng({
-              required this.lat,
-              required this.lng,
-            });
-
+            LatLng({required this.lat, required this.lng});
+          
             factory LatLng.fromJson(Map<String, dynamic> json) => _$LatLngFromJson(json);
             Map<String, dynamic> toJson() => _$LatLngToJson(this);
-
+          
             final double lat;
             final double lng;
           }
-
+          
           @JsonSerializable()
           class Region {
             Region({
@@ -1266,16 +1276,16 @@ steps:
               required this.name,
               required this.zoom,
             });
-
+          
             factory Region.fromJson(Map<String, dynamic> json) => _$RegionFromJson(json);
             Map<String, dynamic> toJson() => _$RegionToJson(this);
-
+          
             final LatLng coords;
             final String id;
             final String name;
             final double zoom;
           }
-
+          
           @JsonSerializable()
           class Office {
             Office({
@@ -1288,10 +1298,10 @@ steps:
               required this.phone,
               required this.region,
             });
-
+          
             factory Office.fromJson(Map<String, dynamic> json) => _$OfficeFromJson(json);
             Map<String, dynamic> toJson() => _$OfficeToJson(this);
-
+          
             final String address;
             final String id;
             final String image;
@@ -1301,43 +1311,40 @@ steps:
             final String phone;
             final String region;
           }
-
+          
           @JsonSerializable()
           class Locations {
-            Locations({
-              required this.offices,
-              required this.regions,
-            });
-
+            Locations({required this.offices, required this.regions});
+          
             factory Locations.fromJson(Map<String, dynamic> json) =>
                 _$LocationsFromJson(json);
             Map<String, dynamic> toJson() => _$LocationsToJson(this);
-
+          
             final List<Office> offices;
             final List<Region> regions;
           }
-
+          
           Future<Locations> getGoogleOffices() async {
             const googleLocationsURL = 'https://about.google/static/data/locations.json';
-
+          
             // Retrieve the locations of Google offices
             try {
               final response = await http.get(Uri.parse(googleLocationsURL));
               if (response.statusCode == 200) {
                 return Locations.fromJson(
-                    json.decode(response.body) as Map<String, dynamic>);
+                  json.decode(response.body) as Map<String, dynamic>,
+                );
               }
             } catch (e) {
               if (kDebugMode) {
                 print(e);
               }
             }
-
+          
             // Fallback for when the above HTTP request fails.
             return Locations.fromJson(
-              json.decode(
-                await rootBundle.loadString('assets/locations.json'),
-              ) as Map<String, dynamic>,
+              json.decode(await rootBundle.loadString('assets/locations.json'))
+                  as Map<String, dynamic>,
             );
           }
       - name: Patch lib/main.dart
@@ -1345,20 +1352,15 @@ steps:
         patch-u: |
           --- b/google-maps-in-flutter/step_5/lib/main.dart
           +++ a/google-maps-in-flutter/step_5/lib/main.dart
-          @@ -16,8 +16,11 @@
+          @@ -16,6 +16,7 @@
            
            import 'package:flutter/material.dart';
            import 'package:google_maps_flutter/google_maps_flutter.dart';
           +import 'src/locations.dart' as locations;
            
-          -void main() => runApp(const MyApp());
-          +void main() {
-          +  runApp(const MyApp());
-          +}
-           
-           class MyApp extends StatefulWidget {
-             const MyApp({super.key});
-          @@ -27,12 +30,23 @@ class MyApp extends StatefulWidget {
+           void main() {
+             runApp(const MyApp());
+          @@ -29,12 +30,20 @@ class MyApp extends StatefulWidget {
            }
            
            class _MyAppState extends State<MyApp> {
@@ -1377,10 +1379,7 @@ steps:
           +        final marker = Marker(
           +          markerId: MarkerId(office.name),
           +          position: LatLng(office.lat, office.lng),
-          +          infoWindow: InfoWindow(
-          +            title: office.name,
-          +            snippet: office.address,
-          +          ),
+          +          infoWindow: InfoWindow(title: office.name, snippet: office.address),
           +        );
           +        _markers[office.name] = marker;
           +      }
@@ -1388,23 +1387,22 @@ steps:
              }
            
              @override
-          @@ -44,15 +58,16 @@ class _MyAppState extends State<MyApp> {
-                 ),
+          @@ -42,10 +51,17 @@ class _MyAppState extends State<MyApp> {
+               return MaterialApp(
+                 theme: ThemeData(colorSchemeSeed: Colors.green[700]),
                  home: Scaffold(
-                   appBar: AppBar(
-          -          title: const Text('Maps Sample App'),
+          -        appBar: AppBar(title: const Text('Maps Sample App'), elevation: 2),
+          +        appBar: AppBar(
           +          title: const Text('Google Office Locations'),
-                     elevation: 2,
-                   ),
+          +          elevation: 2,
+          +        ),
                    body: GoogleMap(
                      onMapCreated: _onMapCreated,
-          -          initialCameraPosition: CameraPosition(
-          -            target: _center,
-          -            zoom: 11.0,
+          -          initialCameraPosition: CameraPosition(target: _center, zoom: 11.0),
           +          initialCameraPosition: const CameraPosition(
           +            target: LatLng(0, 0),
           +            zoom: 2,
-                     ),
+          +          ),
           +          markers: _markers.values.toSet(),
                    ),
                  ),
@@ -1414,18 +1412,21 @@ steps:
         patch-u: |
           --- b/google-maps-in-flutter/step_5/pubspec.yaml
           +++ a/google-maps-in-flutter/step_5/pubspec.yaml
-          @@ -94,3 +94,5 @@ flutter:
+          @@ -92,3 +92,5 @@ flutter:
              #
              # For details regarding fonts from package dependencies,
-             # see https://flutter.dev/custom-fonts/#from-packages
+             # see https://flutter.dev/to/font-from-package
           +  assets:
           +    - assets/locations.json
-      - name: flutter doctor
+      - name: Flutter pub get
         path: google_maps_in_flutter
-        flutter: doctor
+        flutter: pub get
       - name: Run build_runner
         path: google_maps_in_flutter
-        flutter: pub run build_runner build
+        dart: run build_runner build
+      - name: format locations.g.dart
+        path: google_maps_in_flutter
+        dart: format lib/src/locations.g.dart
       - name: Patch lib/src/locations.g.dart
         path: google_maps_in_flutter/lib/src/locations.g.dart
         patch-u: |
@@ -1454,6 +1455,9 @@ steps:
       - name: flutter clean
         path: google_maps_in_flutter
         flutter: clean
+      - name: flutter pub upgrade
+        path: google_maps_in_flutter
+        flutter: pub upgrade
       - name: build Android
         platforms: [ macos ]
         path: google_maps_in_flutter
@@ -1461,7 +1465,7 @@ steps:
       - name: build iOS
         platforms: [ macos ]
         path: google_maps_in_flutter
-        flutter: build ios
+        flutter: build ios --simulator
       - name: build web
         path: google_maps_in_flutter
         flutter: build web

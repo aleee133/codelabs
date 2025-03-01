@@ -2,40 +2,54 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../logic/dash_purchases.dart';
+import '../logic/firebase_notifier.dart';
+import '../model/firebase_state.dart';
 import '../model/purchasable_product.dart';
 import '../model/store_state.dart';
 import '../repo/iap_repo.dart';
+import 'login_page.dart';
 
 class PurchasePage extends StatelessWidget {
   const PurchasePage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    var firebaseNotifier = context.watch<FirebaseNotifier>();
+    if (firebaseNotifier.state == FirebaseState.loading) {
+      return _PurchasesLoading();
+    } else if (firebaseNotifier.state == FirebaseState.notAvailable) {
+      return _PurchasesNotAvailable();
+    }
+
+    if (!firebaseNotifier.loggedIn) {
+      return const LoginPage();
+    }
+
     var upgrades = context.watch<DashPurchases>();
 
     Widget storeWidget;
     switch (upgrades.storeState) {
       case StoreState.loading:
         storeWidget = _PurchasesLoading();
-        break;
       case StoreState.available:
         storeWidget = _PurchaseList();
-        break;
       case StoreState.notAvailable:
         storeWidget = _PurchasesNotAvailable();
-        break;
     }
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      storeWidget,
-      const Padding(
-        padding: EdgeInsets.fromLTRB(32.0, 32.0, 32.0, 0.0),
-        child: Text(
-          'Past purchases',
-          style: TextStyle(fontWeight: FontWeight.bold),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        storeWidget,
+        const Padding(
+          padding: EdgeInsets.fromLTRB(32.0, 32.0, 32.0, 0.0),
+          child: Text(
+            'Past purchases',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
         ),
-      ),
-      const PastPurchasesWidget(),
-    ]);
+        const PastPurchasesWidget(),
+      ],
+    );
   }
 }
 
@@ -59,13 +73,17 @@ class _PurchaseList extends StatelessWidget {
     var purchases = context.watch<DashPurchases>();
     var products = purchases.products;
     return Column(
-      children: products
-          .map((product) => _PurchaseWidget(
-              product: product,
-              onPressed: () {
-                purchases.buy(product);
-              }))
-          .toList(),
+      children:
+          products
+              .map(
+                (product) => _PurchaseWidget(
+                  product: product,
+                  onPressed: () {
+                    purchases.buy(product);
+                  },
+                ),
+              )
+              .toList(),
     );
   }
 }
@@ -74,10 +92,7 @@ class _PurchaseWidget extends StatelessWidget {
   final PurchasableProduct product;
   final VoidCallback onPressed;
 
-  const _PurchaseWidget({
-    required this.product,
-    required this.onPressed,
-  });
+  const _PurchaseWidget({required this.product, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
@@ -86,25 +101,21 @@ class _PurchaseWidget extends StatelessWidget {
       title += ' (purchased)';
     }
     return InkWell(
-        onTap: onPressed,
-        child: ListTile(
-          title: Text(
-            title,
-          ),
-          subtitle: Text(product.description),
-          trailing: Text(_trailing()),
-        ));
+      onTap: onPressed,
+      child: ListTile(
+        title: Text(title),
+        subtitle: Text(product.description),
+        trailing: Text(_trailing()),
+      ),
+    );
   }
 
   String _trailing() {
-    switch (product.status) {
-      case ProductStatus.purchasable:
-        return product.price;
-      case ProductStatus.purchased:
-        return 'purchased';
-      case ProductStatus.pending:
-        return 'buying...';
-    }
+    return switch (product.status) {
+      ProductStatus.purchasable => product.price,
+      ProductStatus.purchased => 'purchased',
+      ProductStatus.pending => 'buying...',
+    };
   }
 }
 
@@ -117,10 +128,11 @@ class PastPurchasesWidget extends StatelessWidget {
     return ListView.separated(
       shrinkWrap: true,
       itemCount: purchases.length,
-      itemBuilder: (context, index) => ListTile(
-        title: Text(purchases[index].title),
-        subtitle: Text(purchases[index].status.toString()),
-      ),
+      itemBuilder:
+          (context, index) => ListTile(
+            title: Text(purchases[index].title),
+            subtitle: Text(purchases[index].status.toString()),
+          ),
       separatorBuilder: (context, index) => const Divider(),
     );
   }

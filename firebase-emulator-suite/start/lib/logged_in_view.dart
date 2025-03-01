@@ -1,5 +1,3 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_declarations
-
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -24,9 +22,7 @@ class LoggedInView extends StatelessWidget {
         children: [
           Center(
             child: Padding(
-              padding: const EdgeInsets.symmetric(
-                vertical: 16.0,
-              ),
+              padding: const EdgeInsets.symmetric(vertical: 16.0),
               child: Text(
                 'Welcome back, $name!',
                 style: Theme.of(context).textTheme.headlineSmall!.copyWith(),
@@ -51,16 +47,13 @@ class LoggedInView extends StatelessWidget {
                           state.writeEntryToFirebase(e);
                         },
                       ),
-                      for (var entry in allEntries!)
-                        EntryView(
-                          entry: entry,
-                        )
+                      for (var entry in allEntries!) EntryView(entry: entry),
                     ],
                   );
                 },
               ),
             ),
-          )
+          ),
         ],
       ),
     );

@@ -2,11 +2,8 @@ function ci_codelabs () {
     local channel="$1"
     shift
 
-    # plugin_codelab is a special case since it's a plugin.  Analysis doesn't seem to be working.
-    pushd plugin_codelab
-        echo "== TESTING plugin_codelab on $channel"
-        dart format --output none --set-exit-if-changed .;
-    popd
+    # Disable analytics to avoid https://github.com/dart-lang/tools/issues/249
+    dart --disable-analytics
 
     # ffigen_codelab/step_07 needs to build the native library before running the tests
     pushd ffigen_codelab/step_07/example
@@ -24,7 +21,7 @@ function ci_codelabs () {
     do
         echo "== Testing '${CODELAB}' on $channel"
         declare -a PROJECT_PATHS=($(
-        find $CODELAB -not -path './flutter/*' -not -path './plugin_codelab/pubspec.yaml' -not -path '*/*symlinks/*' -name pubspec.yaml -exec dirname {} \; | sort
+        find $CODELAB -not -path './flutter/*' -not -path '*/.symlinks/*' -name pubspec.yaml -exec dirname {} \; | sort
         ))
         for PROJECT in "${PROJECT_PATHS[@]}"
         do
@@ -41,7 +38,7 @@ function ci_codelabs () {
             echo "== Testing"
 
             # Run the analyzer to find any static analysis issues.
-            dart analyze --fatal-infos
+            dart analyze --fatal-infos --fatal-warnings
 
             # Run the formatter on all the dart files to make sure everything's linted.
             dart format --output none --set-exit-if-changed .
@@ -50,7 +47,20 @@ function ci_codelabs () {
             if [ -d "test" ]
             then
                 if grep -q "flutter:" "pubspec.yaml"; then
-                  flutter test
+
+                    # intro_flutter_gpu only runs with Impeller
+                    if [ $CODELAB = 'intro_flutter_gpu' ]; then
+                        # Skipping Windows: https://github.com/bdero/flutter_scene/issues/55
+                        if [ $RUNNER_OS = 'macOS' ] || [ $RUNNER_OS = 'Linux' ]; then
+                            flutter config --enable-native-assets
+                            flutter build `echo $RUNNER_OS | tr '[:upper:]' '[:lower:]'` --debug
+                            flutter test --enable-impeller
+                        else
+                            echo "Skipping $CODELAB on $RUNNER_OS"
+                        fi
+                    else
+                        flutter test
+                    fi
                 else
                   # If the project is not a Flutter project, use the Dart CLI.
                   dart test

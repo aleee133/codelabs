@@ -31,19 +31,21 @@ class ParticleOverlay extends StatelessWidget {
         double a = rnd(pi * 2);
         double dist = rnd(1, 4) * 35 + 150 * energy;
         double vel = rnd(1, 2) * (1 + energy * 1.8);
-        particles.add(Particle(
-          // how many ticks this particle will live:
-          lifespan: rnd(1, 2) * 20 + energy * 15,
-          // starting distance from center:
-          x: cos(a) * dist,
-          y: sin(a) * dist,
-          // starting velocity:
-          vx: cos(a) * vel,
-          vy: sin(a) * vel,
-          // other starting values:
-          rotation: a,
-          scale: rnd(1, 2) * 0.6 + energy * 0.5,
-        ));
+        particles.add(
+          Particle(
+            // how many ticks this particle will live:
+            lifespan: rnd(1, 2) * 20 + energy * 15,
+            // starting distance from center:
+            x: cos(a) * dist,
+            y: sin(a) * dist,
+            // starting velocity:
+            vx: cos(a) * vel,
+            vy: sin(a) * vel,
+            // other starting values:
+            rotation: a,
+            scale: rnd(1, 2) * 0.6 + energy * 0.5,
+          ),
+        );
 
         // update all of the particles:
         for (int i = particles.length - 1; i >= 0; i--) {
@@ -57,7 +59,7 @@ class ParticleOverlay extends StatelessWidget {
             scale: p.scale * 1.025,
             vx: p.vx * 1.025,
             vy: p.vy * 1.025,
-            color: color.withOpacity(p.lifespan * 0.001 + 0.01),
+            color: color.withAlpha((p.lifespan * 0.255 + 2.55).ceil()),
             lifespan: p.lifespan - 1,
           );
         }

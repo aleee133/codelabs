@@ -41,7 +41,7 @@ class NarrowDisplayPlaylists extends StatelessWidget {
             Uri(
               path: '/playlist/${playlist.id}',
               queryParameters: <String, String>{
-                'title': playlist.snippet!.title!
+                'title': playlist.snippet!.title!,
               },
             ).toString(),
           );
@@ -64,26 +64,28 @@ class _WideDisplayPlaylistsState extends State<WideDisplayPlaylists> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: selectedPlaylist == null
-            ? const Text('FlutterDev Playlists')
-            : Text('FlutterDev Playlist: ${selectedPlaylist!.snippet!.title!}'),
+        title: switch (selectedPlaylist?.snippet?.title) {
+          String title => Text('FlutterDev Playlist: $title'),
+          _ => const Text('FlutterDev Playlists'),
+        },
       ),
       body: SplitView(
         viewMode: SplitViewMode.Horizontal,
         children: [
-          Playlists(playlistSelected: (playlist) {
-            setState(() {
-              selectedPlaylist = playlist;
-            });
-          }),
-          if (selectedPlaylist != null)
-            PlaylistDetails(
-                playlistId: selectedPlaylist!.id!,
-                playlistName: selectedPlaylist!.snippet!.title!)
-          else
-            const Center(
-              child: Text('Select a playlist'),
+          Playlists(
+            playlistSelected: (playlist) {
+              setState(() {
+                selectedPlaylist = playlist;
+              });
+            },
+          ),
+          switch ((selectedPlaylist?.id, selectedPlaylist?.snippet?.title)) {
+            (String id, String title) => PlaylistDetails(
+              playlistId: id,
+              playlistName: title,
             ),
+            _ => const Center(child: Text('Select a playlist')),
+          },
         ],
       ),
     );

@@ -1,8 +1,10 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart' hide EmailAuthProvider;
+import 'package:firebase_ui_auth/firebase_ui_auth.dart';
+import 'package:firebase_ui_oauth_google/firebase_ui_oauth_google.dart';
 import 'package:flutter/material.dart';
-import 'package:flutterfire_ui/auth.dart';
 
 import 'home.dart';
+import 'main.dart';
 
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key});
@@ -14,27 +16,26 @@ class AuthGate extends StatelessWidget {
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return SignInScreen(
-            providerConfigs: const [
-              EmailProviderConfiguration(),
-              GoogleProviderConfiguration(
-                  clientId:
-                      '963656261848-v7r3vq1v6haupv0l1mdrmsf56ktnua60.apps.googleusercontent.com'),
+            providers: [
+              EmailAuthProvider(),
+              GoogleProvider(clientId: clientId),
             ],
             headerBuilder: (context, constraints, shrinkOffset) {
               return Padding(
                 padding: const EdgeInsets.all(20),
                 child: AspectRatio(
                   aspectRatio: 1,
-                  child: Image.asset('flutterfire_300x.png'),
+                  child: Image.asset('assets/flutterfire_300x.png'),
                 ),
               );
             },
             subtitleBuilder: (context, action) {
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: action == AuthAction.signIn
-                    ? const Text('Welcome to FlutterFire, please sign in!')
-                    : const Text('Welcome to Flutterfire, please sign up!'),
+                child:
+                    action == AuthAction.signIn
+                        ? const Text('Welcome to FlutterFire, please sign in!')
+                        : const Text('Welcome to Flutterfire, please sign up!'),
               );
             },
             footerBuilder: (context, action) {
@@ -43,15 +44,6 @@ class AuthGate extends StatelessWidget {
                 child: Text(
                   'By signing in, you agree to our terms and conditions.',
                   style: TextStyle(color: Colors.grey),
-                ),
-              );
-            },
-            sideBuilder: (context, shrinkOffset) {
-              return Padding(
-                padding: const EdgeInsets.all(20),
-                child: AspectRatio(
-                  aspectRatio: 1,
-                  child: Image.asset('flutterfire_300x.png'),
                 ),
               );
             },

@@ -8,25 +8,27 @@ source "$DIR/flutter_ci_script_shared.sh"
 declare -a CODELABS=(
   "adaptive_app"
   "animated-responsive-layout"
+  "animations"
+  "audio_soloud"
   "boring_to_beautiful"
-  "cookbook"
-  "cupertino_store"
-  "dartpad_codelabs"
+  "brick_breaker"
+  "dart-patterns-and-records"
   "deeplink_cookbook"
   "ffigen_codelab"
   "firebase-auth-flutterfire-ui"
   "firebase-emulator-suite"
   "firebase-get-to-know-flutter"
-  "flame-building-doodle-dash"
+  "forge2d_game"
+  "generate_crossword"
   "github-client"
   "google-maps-in-flutter"
   "haiku_generator"
+  "homescreen_codelab"
   "in_app_purchases"
+  # TODO(domesticmouse): Add after stable is above Dart 3.7.0-0
+  # "intro_flutter_gpu"
   "namer"
-  # TODO(DomesticMouse): enable on Flutter stable increment
-  # "next-gen-ui"
-  "plugin_codelab"
-  "star_counter"
+  "next-gen-ui"
   "testing_codelab"
   "tfagents-flutter"
   "tfrs-flutter"
@@ -34,11 +36,6 @@ declare -a CODELABS=(
   "tooling"
   "webview_flutter"
   )
-
-# Plugin codelab is failing on ubuntu-latest in CI.
-if [[ "$OSTYPE" != "linux-gnu"* ]]; then
-  CODELABS+=("plugin_codelab")
-fi
 
 ci_codelabs "stable" "${CODELABS[@]}"
 

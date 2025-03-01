@@ -1,5 +1,3 @@
-// ignore_for_file: avoid_print
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -11,9 +9,7 @@ class LoggedOutView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Firebase Emulator Suite Codelab'),
-      ),
+      appBar: AppBar(title: const Text('Firebase Emulator Suite Codelab')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -27,7 +23,7 @@ class LoggedOutView extends StatelessWidget {
               child: FilledButton(
                 onPressed: () async {
                   await state.logIn('dash@email.com', 'dashword').then((_) {
-                    if (state.user != null) {
+                    if (state.user != null && context.mounted) {
                       context.go('/');
                     }
                   });

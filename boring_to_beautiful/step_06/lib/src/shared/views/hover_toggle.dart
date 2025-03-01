@@ -29,11 +29,12 @@ class _HoverToggleState extends State<HoverToggle> with MaterialStateMixin {
       size: widget.size,
       child: MouseRegion(
         cursor: isHovered ? SystemMouseCursors.click : MouseCursor.defer,
-        onEnter: (_) => setMaterialState(MaterialState.hovered, true),
-        onExit: (_) => setMaterialState(MaterialState.hovered, false),
-        child: widget.mode == HoverMode.replace
-            ? _buildReplaceableChildren()
-            : _buildChildrenStack(),
+        onEnter: (_) => setMaterialState(WidgetState.hovered, true),
+        onExit: (_) => setMaterialState(WidgetState.hovered, false),
+        child:
+            widget.mode == HoverMode.replace
+                ? _buildReplaceableChildren()
+                : _buildChildrenStack(),
       ),
     );
   }
@@ -41,12 +42,7 @@ class _HoverToggleState extends State<HoverToggle> with MaterialStateMixin {
   Widget _buildChildrenStack() {
     Widget child =
         isHovered ? Opacity(opacity: 0.2, child: widget.child) : widget.child;
-    return Stack(
-      children: <Widget>[
-        child,
-        if (isHovered) widget.hoverChild,
-      ],
-    );
+    return Stack(children: <Widget>[child, if (isHovered) widget.hoverChild]);
   }
 
   Widget _buildReplaceableChildren() =>

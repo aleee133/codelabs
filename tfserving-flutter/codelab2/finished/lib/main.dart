@@ -61,7 +61,7 @@ class _TFServingDemoState extends State<TFServingDemo> {
     return MaterialApp(
       title: 'TF Serving Flutter Demo',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
       home: Scaffold(
         appBar: AppBar(
@@ -110,8 +110,8 @@ class _TFServingDemoState extends State<TFServingDemo> {
                   Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        ElevatedButton(
-                            style: ElevatedButton.styleFrom(
+                        FilledButton(
+                            style: FilledButton.styleFrom(
                               textStyle: const TextStyle(fontSize: 18),
                             ),
                             onPressed: () {
@@ -120,8 +120,8 @@ class _TFServingDemoState extends State<TFServingDemo> {
                               });
                             },
                             child: const Text('Classify')),
-                        ElevatedButton(
-                            style: ElevatedButton.styleFrom(
+                        FilledButton(
+                            style: FilledButton.styleFrom(
                               textStyle: const TextStyle(fontSize: 18),
                             ),
                             onPressed: () {

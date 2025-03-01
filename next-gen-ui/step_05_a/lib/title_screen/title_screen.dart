@@ -128,12 +128,10 @@ class _LitImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hsl = HSLColor.fromColor(color);
-    return ColorFiltered(
-      colorFilter: ColorFilter.mode(
-        hsl.withLightness(hsl.lightness * lightAmt).toColor(),
-        BlendMode.modulate,
-      ),
-      child: Image.asset(imgSrc),
+    return Image.asset(
+      imgSrc,
+      color: hsl.withLightness(hsl.lightness * lightAmt).toColor(),
+      colorBlendMode: BlendMode.modulate,
     );
   }
 }
@@ -149,7 +147,7 @@ class _AnimatedColors extends StatelessWidget {
   final Color orbColor;
 
   final Widget Function(BuildContext context, Color orbColor, Color emitColor)
-      builder;
+  builder;
 
   @override
   Widget build(BuildContext context) {
